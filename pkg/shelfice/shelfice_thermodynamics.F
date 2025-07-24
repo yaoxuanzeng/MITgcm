@@ -86,6 +86,8 @@ C     drKp1, recip_drLoc
       _RL tLoc(1:sNx,1:sNy)
       _RL sLoc(1:sNx,1:sNy)
       _RL pLoc(1:sNx,1:sNy)
+C Add rLoc as the ice thickness by yxz
+      _RL rLoc(1:sNx,1:sNy)
       _RL uLoc(1:sNx+1,1:sNy+1)
       _RL vLoc(1:sNx+1,1:sNy+1)
       _RL velSq(1:sNx,1:sNy)
@@ -181,11 +183,18 @@ C     (Holland and Jenkins, 1999, eq.21)
       IF ( SHELFICEadvDiffHeatFlux ) dFac = 1. _d 0
       fwflxFac = 0. _d 0
 C     linear dependence of freezing point on salinity
+C      a0 = -0.0575   _d  0
+C      a1 =  0.0      _d -0
+C      a2 =  0.0      _d -0
+C      c0 =  0.0901   _d  0
+C      b  =  -7.61    _d -4
+C     Always use the non-linear one by yxz
       a0 = -0.0575   _d  0
-      a1 =  0.0      _d -0
-      a2 =  0.0      _d -0
-      c0 =  0.0901   _d  0
-      b  =  -7.61    _d -4
+      a1 = 1.710523  _d -3
+      a2 = -2.154996 _d -4
+      b  = -7.53     _d -4
+      c0 = 0. _d 0
+
 #ifdef ALLOW_ISOMIP_TD
       IF ( useISOMIPTD ) THEN
 C     non-linear dependence of freezing point on salinity
@@ -287,6 +296,11 @@ C      static contribution and etaN dynamical contribution:
 c         pLoc(I,J) = ABS(R_shelfIce(I,J,bi,bj))
 C-    new and accurate pLoc expression (just the weight of the ice):
           pLoc(I,J) = shelficeMass(I,J,bi,bj)*gravity*SItodBar
+C     adding calculation of rLoc with added surface ice thickness by yxz
+          rLoc(I,J) = ABS(R_shelfIce(I,J,bi,bj)) + 0.0 _d 4
+C     if there are additional ice shell not prescribed in the model (not
+C     0.0), use the following pLoc calculation - yxz
+          pLoc(I,J) = (rUnit2mass*gravity*rLoc(I,J)+top_Pres+1. _d 5)*1. _d -4
           tLoc(I,J) = theta(I,J,K,bi,bj)
           sLoc(I,J) = MAX(salt(I,J,K,bi,bj), zeroRL)
           velSq(I,J)= 0.
@@ -582,7 +596,9 @@ C     eps3a was introduced as a constant variant of eps3 to avoid AD of
 C     code of type (pLoc-const)/pLoc
             eps3a = rhoShelfIce*SHELFICEheatCapacity_Cp
      &           * SHELFICEkappa *  ( 1. _d 0 - dFac )
-            eps3 = eps3a/pLoc(I,J)
+C     This original code is wrong. Should use rLoc - yxz
+C           eps3 = eps3a/pLoc(I,J)
+            eps3 = eps3a/rLoc(I,J)
             eps4 = b*pLoc(I,J) + c0
             eps6 = eps4 - tLoc(I,J)
             eps7 = eps4 - SHELFICEthetaSurface
