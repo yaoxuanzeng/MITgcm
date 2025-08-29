@@ -1,4 +1,4 @@
-#ifdef ALLOW_SLANTWISE
+#include "SLANTWISE_OPTIONS.h"
 
 CBOP
 C     !ROUTINE: SLANTWISE_READPARMS
@@ -22,11 +22,12 @@ C     === Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "SLANTWISE.h"
-#include "SLANTWISE_OPTIONS.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===
       INTEGER myThid
+
+#ifdef ALLOW_SLANTWISE
 
 C     !LOCAL VARIABLES:
 C     === Local variables ===
@@ -52,7 +53,7 @@ C     default values
       slcon_cn                = 6.60d-1
       slcon_cr                = 3.26d-1
         
-      WRITE(msgBuf,'(A)') ' SLANTWISE_READPARMS: opening data.slantwise'
+      WRITE(msgBuf,'(A)') 'SLANTWISE_READPARMS:opening data.slantwise'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIGHT,1)
       CALL OPEN_COPY_DATA_FILE(
      I                        'data.slantwise','SLANTWISE_READPARMS',
@@ -66,8 +67,9 @@ C     default values
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT , 1)
 
+#endif /* ALLOW_SLANTWISE */
+
       RETURN
       END
 
-#endif /* ALLOW_SLANTWISE */
 

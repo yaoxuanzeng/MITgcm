@@ -9,7 +9,7 @@ C     !ROUTINE: CALC_3D_DIFFUSIVITY
 C     !INTERFACE:
       SUBROUTINE CALC_3D_DIFFUSIVITY(
      I        bi, bj, iMin,iMax,jMin,jMax,
-     I        trIdentity, trUseGMRedi, trUseKPP,
+     I        trIdentity, trUseGMRedi, trUseKPP, trUseSlantwise,
      O        KappaRTr,
      I        myThid )
 
@@ -50,11 +50,12 @@ C     jMin,jMax  :: Range of points for which calculation is performed.
 C     trIdentity :: tracer identifier
 C     trUseGMRedi:: this tracer use GM-Redi
 C     trUseKPP   :: this tracer use KPP
+C     trUseSlantwise :: this tracer use slantwise
 C     myThid     :: Instance number for this innvocation of CALC_3D_DIFFUSIVITY
 C     KappaRTr   :: Net diffusivity for this tracer (trIdentity)
       INTEGER bi,bj,iMin,iMax,jMin,jMax
       INTEGER trIdentity
-      LOGICAL trUseGMRedi, trUseKPP
+      LOGICAL trUseGMRedi, trUseKPP, trUseSlantwise
       _RL KappaRTr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       INTEGER myThid
 
@@ -202,6 +203,15 @@ C--   Set vertical diffusivity contribution from KPP
 #ifdef ALLOW_GMREDI
       IF (trUseGMRedi) THEN
          CALL GMREDI_CALC_DIFF(
+     I        bi,bj,iMin,iMax,jMin,jMax,0,Nr,
+     U        KappaRTr,
+     I        trIdentity,myThid)
+      ENDIF
+#endif
+
+#ifdef ALLOW_SLANTWISE
+      IF (trUseSlantwise) THEN
+         CALL SLANTWISE_CALC_DIFF(
      I        bi,bj,iMin,iMax,jMin,jMax,0,Nr,
      U        KappaRTr,
      I        trIdentity,myThid)

@@ -52,9 +52,9 @@ C to be no more than the amount of tracer in the cell (see Smolarkiewicz
 C MWR 1989 and Bott MWR 1989).
 C The flux contributions computed in gad_calc_rhs which are affected by
 C this hack are:
-C - explicit diffusion, Redi and the non-local part of KPP
+C - explicit diffusion, Redi and the non-local part of KPP and slantwise
 C - advection is affected only if multiDimAdvection=.FALSE.
-C - vertical diffusion (including the diagonal contribution from GMRedi)
+C - vertical diffusion (including the diagonal contribution from GMRedi and slantwise)
 C   only if implicitDiffusion=.FALSE.
 C - GM is affected only if GMREDI_AdvForm=.FALSE.
 C

@@ -1,0 +1,15 @@
+ nDims = [   3 ];
+ dimList = [
+     1,    1,    1,
+    32,    1,   32,
+    32,    1,   32
+ ];
+ dataprec = [ 'float32' ];
+ nrecords = [          5 ];
+ timeStepNumber = [       3500 ];
+ timeInterval = [  3.500000000000E+03 ];
+ missingValue = [ -9.99000000000000E+02 ];
+ nFlds = [    5 ];
+ fldList = {
+ 'UVEL    ' 'VVEL    ' 'WVEL    ' 'THETA   ' 'RHOAnoma'
+ };

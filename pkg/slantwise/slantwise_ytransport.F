@@ -1,5 +1,4 @@
-#include "CPP_OPTIONS.h"
-#ifdef ALLOW_SLANTWISE
+#include "SLANTWISE_OPTIONS.h"
 
 CBOP
 C     !ROUTINE: SLANTWISE_YTRANSPORT
@@ -51,12 +50,15 @@ C     myThid     :: my Thread Id number
       INTEGER myThid
 CEOP
 
+#ifdef ALLOW_SLANTWISE
+
 C     !LOCAL VARIABLES:
       INTEGER i,j,kp1,km1 ! local indices
       _RL maskp1 ! mask
       _RL Kyy_S, Kyz_S ! Tensor elements at the southern boundary
       _RL epsS ! Avoiding zero denominator
-      _RL dR_W_jk, dR_W_jm1k, dR_W_jkm1, dR_W_jm1km1, dR_W_k, dR_W_km1 ! Gradients at W grids, used for calculating dCdz_S
+      _RL dR_W_jk, dR_W_jm1k, dR_W_jkm1
+      _RL dR_W_jm1km1, dR_W_k, dR_W_km1 ! Gradients at W grids, used for calculating dCdz_S
       _RL dCdz_S, dCdy_S ! Tracer gradients at the southern boundary / W grids
 
       epsS = 1.D-20
@@ -75,29 +77,38 @@ C-    Calculate the tensor element at the southern boundary
      &          (_maskS(i,j  ,k,bi,bj) + _maskS(i,j-1,k,bi,bj) + epsS)
 C-    Calculate the tracer gradients at the southern boundary
 C     Calculate dC/dy at the southern boundary
-        dCdy_S = ( Tracer(i,j,k) - Tracer(i,j-1,k) ) *_maskS(i,j,k,bi,bj)
-     &           * _recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
+        dCdy_S = (Tracer(i,j,k)-Tracer(i,j-1,k))*_maskS(i,j,k,bi,bj)
+     &          *_recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
 C     Calculate dC/dz at W grids
         maskp1 = 1. _d 0
         IF (k.GE.Nr) maskp1 = 0. _d 0
-        dR_W_jkm1   = _recip_drC(k) * ( Tracer(i,j  ,km1) - Tracer(i,j  ,k) )
-        dR_W_jm1km1 = _recip_drC(k) * ( Tracer(i,j-1,km1) - Tracer(i,j-1,k) )
-        dR_W_km1    = 0.5d0 * ( maskFk(i,j-1) * dR_W_jm1km1 + maskFk(i,j) * dR_W_jkm1 )
-        dR_W_jk     = _recip_drC(kp1) * ( Tracer(i, j ,k) - Tracer(i, j ,kp1) )
-        dR_W_jm1k   = _recip_drC(kp1) * ( Tracer(i,j-1,k) - Tracer(i,j-1,kp1) )
-        dR_W_k      = 0.5d0*(_maskC(i,j-1,k ,bi,bj)*_maskC(i,j-1,kp1,bi,bj)*maskp1*dR_W_jm1k
-     &                +      _maskC(i,j  ,k ,bi,bj)*_maskC(i,j  ,kp1,bi,bj)*maskp1*dR_W_jk)
+        dR_W_jkm1   = ( Tracer(i,j  ,km1) - Tracer(i,j  ,k) )
+     &               * recip_drC(k) 
+        dR_W_jm1km1 = ( Tracer(i,j-1,km1) - Tracer(i,j-1,k) )
+     &               * recip_drC(k)
+        dR_W_km1    = 0.5d0 * ( maskFk(i,j-1) * dR_W_jm1km1 
+     &               + maskFk(i,j) * dR_W_jkm1 )
+        dR_W_jk     = ( Tracer(i, j ,k) - Tracer(i, j ,kp1) )
+     &               * recip_drC(kp1)
+        dR_W_jm1k   = ( Tracer(i,j-1,k) - Tracer(i,j-1,kp1) )
+     &               * recip_drC(kp1)
+        dR_W_k      = 0.5d0*( maskC(i,j-1,k ,bi,bj)
+     &               * maskC(i,j-1,kp1,bi,bj)*maskp1*dR_W_jm1k
+     &               + maskC(i,j,k ,bi,bj)*maskC(i,j,kp1,bi,bj)
+     &               * maskp1*dR_W_jk)
 
         dCdz_S = 0.5d0 * ( dR_W_km1 + dR_W_k )
 C-    Calculate the flux
-        df(i,j)=df(i,j)-yA(i,j)*(Kyy_S*dCdy_S+Kyz_S*dCdz_S)*_maskS(i,j,k,bi,bj)
+        df(i,j)= df(i,j)-yA(i,j)*(Kyy_S*dCdy_S+Kyz_S*dCdz_S)
+     &          *_maskS(i,j,k,bi,bj)
        ENDDO
       ENDDO
+
+#endif /* ALLOW_SLANTWISE */
 
       RETURN
       END
 
-#endif /* ALLOW_SLANTWISE */
 
 
 

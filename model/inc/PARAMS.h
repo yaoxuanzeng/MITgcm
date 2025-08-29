@@ -1057,6 +1057,7 @@ C-- Logical flags for selecting packages
       LOGICAL useGGL90
       LOGICAL useKPP
       LOGICAL useGMRedi
+      LOGICAL useSLANTWISE
       LOGICAL useDOWN_SLOPE
       LOGICAL useBBL
       LOGICAL useCAL
@@ -1101,7 +1102,7 @@ C-- Logical flags for selecting packages
       COMMON /PARM_PACKAGES/
      &        useGAD, useOBCS, useSHAP_FILT, useZONAL_FILT,
      &        useOPPS, usePP81, useKL10, useMY82, useGGL90, useKPP,
-     &        useGMRedi, useBBL, useDOWN_SLOPE,
+     &        useGMRedi, useSLANTWISE, useBBL, useDOWN_SLOPE,
      &        useCAL, useEXF, useBulkForce, useEBM, useCheapAML,
      &        useGrdchk, useSMOOTH, usePROFILES, useECCO, useCTRL,
      &        useSBO, useFLT, useAUTODIFF,

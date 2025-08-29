@@ -12,6 +12,9 @@
 #ifdef ALLOW_GMREDI
 # include "GMREDI_OPTIONS.h"
 #endif
+#ifdef ALLOW_SLANTWISE
+# include "SLANTWISE_OPTIONS.h"
+#endif
 #ifdef ALLOW_OBCS
 # include "OBCS_OPTIONS.h"
 #endif
@@ -225,6 +228,9 @@ C     it is important that this file is included after SEAICE_SIZE.h
 # ifdef ALLOW_GMREDI
 #  include "GMREDI.h"
 #  include "GMREDI_TAVE.h"
+# endif
+# ifdef ALLOW_SLANTWISE
+#  include "SLANTWISE.h"
 # endif
 # ifdef ALLOW_KPP
 #  include "KPP.h"

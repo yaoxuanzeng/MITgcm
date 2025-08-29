@@ -13,6 +13,9 @@
 #ifdef ALLOW_GMREDI
 # include "GMREDI_OPTIONS.h"
 #endif
+#ifdef ALLOW_SLANTWISE
+# include "SLANTWISE_OPTIONS.h"
+#endif
 #ifdef ALLOW_OBCS
 # include "OBCS_OPTIONS.h"
 #endif
@@ -287,6 +290,9 @@ C     == Global variables ==
 # endif
 # ifdef ALLOW_GMREDI
 #  include "GMREDI.h"
+# endif
+# ifdef ALLOW_SLANTWISE
+#  include "SLANTWISE.h"
 # endif
 # ifdef ALLOW_EXF
 #  ifdef ALLOW_BULKFORMULAE

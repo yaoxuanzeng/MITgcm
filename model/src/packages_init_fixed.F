@@ -120,6 +120,8 @@ C       |-- EMBED_FILES_INIT
 C       |
 C       |-- MYPACKAGE_INIT_FIXED
 C       |
+C       |-- SLANTWISE_INIT_FIXED
+C       |
 C       |-- CTRL_INIT_FIXED
 C       |-- CTRL_ADMTLM
 C       |
@@ -637,6 +639,15 @@ C--   needs to be called after the OASIS_INIT
         IF (debugMode) CALL DEBUG_CALL('MYPACKAGE_INIT_FIXED',myThid)
 # endif
         CALL MYPACKAGE_INIT_FIXED(myThid)
+      ENDIF
+#endif
+
+#ifdef ALLOW_SLANTWISE
+      IF (useSLANTWISE) THEN
+# ifdef ALLOW_DEBUG
+        IF (debugMode) CALL DEBUG_CALL('SLANTWISE_INIT_FIXED',myThid)
+# endif
+        CALL SLANTWISE_INIT_FIXED(myThid)
       ENDIF
 #endif
 

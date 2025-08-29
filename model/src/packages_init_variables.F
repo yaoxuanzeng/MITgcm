@@ -111,6 +111,8 @@ C       |-- CPL_INI_VARS
 C       |
 C       |-- MYPACKAGE_INIT_VARIA
 C       |
+C       |-- SLANTWISE_INIT_VARIA
+C       |
 C       |-- SMOOTH_INIT_VARIA
 C       |-- PROFILES_INIT_VARIA
 C       |-- ECCO_INIT_VARIA
@@ -549,6 +551,12 @@ C--   Initialise the 2-Way Nesting packages variables
         CALL MYPACKAGE_INIT_VARIA( myThid )
       ENDIF
 #endif /* ALLOW_MYPACKAGE */
+
+#ifdef ALLOW_SLANTWISE
+      IF ( useSLANTWISE ) THEN
+        CALL SLANTWISE_INIT_VARIA( myThid )
+      ENDIF
+#endif /* ALLOW_SLANTWISE */
 
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE theta  = tapelev_init, key = 1

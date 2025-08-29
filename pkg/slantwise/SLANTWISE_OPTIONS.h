@@ -35,4 +35,5 @@ C--   Placeholder: allow coupling to cost function (not used by default)
 #undef  ALLOW_SLANTWISE_COST
 
 #endif /* ALLOW_SLANTWISE */
+#endif /* SLANTWISE_OPTIONS_H */
 

@@ -95,6 +95,8 @@ C       |-- RUNCLOCK_CHECK
 C       |
 C       |-- MYPACKAGE_CHECK
 C       |
+C       |-- SLANTWISE_CHECK
+C       |
 C       |-- GAD_CHECK
 
 C     !USES:
@@ -499,6 +501,12 @@ C---  Continue with standard packages (with standard usePKG flag)
       IF (useMYPACKAGE) CALL MYPACKAGE_CHECK( myThid )
 #else
       IF (useMYPACKAGE) CALL PACKAGES_ERROR_MSG('MYPACKAGE',' ',myThid)
+#endif
+
+#ifdef ALLOW_SLANTWISE
+      IF (useSLANTWISE) CALL SLANTWISE_CHECK( myThid )
+#else
+      IF (useSLANTWISE) CALL PACKAGES_ERROR_MSG('SLANTWISE',' ',myThid)
 #endif
 
 #ifdef ALLOW_GENERIC_ADVDIFF

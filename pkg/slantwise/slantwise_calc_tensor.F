@@ -1,5 +1,4 @@
-#include "CPP_OPTIONS.h"
-#ifdef ALLOW_SLANTWISE
+#include "SLANTWISE_OPTIONS.h"
 
 CBOP
 C     !ROUTINE: SLANTWISE_CALC_TENSOR
@@ -31,7 +30,6 @@ C     == Global variables ==
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "GRID.h"
-#include "SLANTWISE_OPTIONS.h"
 #include "SLANTWISE.h"
 
 C     !INPUT/OUTPUT PARAMETERS
@@ -51,6 +49,8 @@ C     sigmaY_C   :: Meridional density gradient at tracer grids
       INTEGER myIter, myThid
 CEOP
 
+#ifdef ALLOW_SLANTWISE
+
 C     !LOCAL VARIABLES
       INTEGER i, j
       _RL d2r, clat, slat
@@ -68,7 +68,9 @@ C     Calculating density gradients at the tracer grids
         DO j = 1-OLy, sNy+OLy-1
          maskloc = _maskS(i,j,K,bi,bj)
          maskp1 = _maskS(i,j+1,K,bi,bj)
-         sigmaY_C(i,j,K) = (maskloc*sigmaY(i,j,K)+maskp1*sigmaY(i,j+1,K))/(maskloc+maskp1+epsmask)
+         sigmaY_C(i,j,K) = (maskloc*sigmaY(i,j,K)
+     &                    + maskp1*sigmaY(i,j+1,K))
+     &                    / (maskloc+maskp1+epsmask)
         END DO
         sigmaY_C(i,sNy+OLy,K) = sigmaY_C(i,sNy+OLy-1,K)
        END DO
@@ -85,7 +87,9 @@ C     Calculating density gradients at the tracer grids
         DO i = 1-OLx, sNx+OLx
          maskloc = _maskW(i,j,K,bi,bj)
          maskp1  = _maskW(i,j,K-1,bi,bj)
-         sigmaR_C(i,j,K) = (maskloc*sigmaR(i,j,K)+maskp1*sigmaR(i,j,K-1))/(maskloc+maskp1+epsmask)
+         sigmaR_C(i,j,K) = (maskloc*sigmaR(i,j,K)
+     &                    + maskp1*sigmaR(i,j,K-1))
+     &                    / (maskloc+maskp1+epsmask)
         END DO
        END DO
       END DO
@@ -95,37 +99,42 @@ C     Calculating tensor elements
       DO K = 1, Nr
        DO j = 1-OLy, sNy+OLy
         DO i = 1-OLx, sNx+OLx
-          IF ( _maskC(i,j,K,bi,bj) .LE. 0.D0 ) THEN
+          IF ( maskC(i,j,K,bi,bj) .LE. 0.D0 ) THEN
            slcon_Kyy(i,j,K,bi,bj) = 0.D0
            slcon_Kyz(i,j,K,bi,bj) = 0.D0
            slcon_Kzz(i,j,K,bi,bj) = 0.D0
           ELSE
            clat = COS( slcon_lat(i,j,K,bi,bj) * d2r )
            slat = SIN( slcon_lat(i,j,K,bi,bj) * d2r )
-           bn = (clat*sigmaY_C(i,j,K)+slat*sigmaR_C(i,j,K))*gravitySign*gravity/rhoConst
+           bn = (clat*sigmaY_C(i,j,K)+slat*sigmaR_C(i,j,K))
+     &          * gravitySign*gravity/rhoConst
 C     If bn>0, it is stable
            IF (bn .GT. 0.D0) THEN
             slcon_Kyy(i,j,K,bi,bj) = 0.D0
             slcon_Kyz(i,j,K,bi,bj) = 0.D0
             slcon_Kzz(i,j,K,bi,bj) = 0.D0
            ELSE
-            Kn = slcon_cn * ABS(bn) * SQRT(ABS(bn)) * inv_f2 * (slcon_Hn(i,j,K,bi,bj)*slcon_Hn(i,j,K,bi,bj))
+            Kn = slcon_cn * ABS(bn) * SQRT(ABS(bn)) * inv_f2 
+     &          * (slcon_Hn(i,j,K,bi,bj)*slcon_Hn(i,j,K,bi,bj))
             Kr = slcon_cr * Kn
 C           Rotate diag(Kn,Kr) to (y,z) and store
             slcon_Kyy(i,j,K,bi,bj) = Kn*clat*clat + Kr*slat*slat
             slcon_Kyz(i,j,K,bi,bj) = (Kn-Kr)*slat*clat
             slcon_Kzz(i,j,K,bi,bj) = Kn*slat*slat + Kr*clat*clat
            ENDIF
-          slcon_Kyy(i,j,K,bi,bj) = slcon_Kyy(i,j,K,bi,bj) * _maskC(i,j,K,bi,bj)
-          slcon_Kyz(i,j,K,bi,bj) = slcon_Kyz(i,j,K,bi,bj) * _maskC(i,j,K,bi,bj)
-          slcon_Kzz(i,j,K,bi,bj) = slcon_Kzz(i,j,K,bi,bj) * _maskC(i,j,K,bi,bj)
+          slcon_Kyy(i,j,K,bi,bj) = slcon_Kyy(i,j,K,bi,bj) 
+     &                            * maskC(i,j,K,bi,bj)
+          slcon_Kyz(i,j,K,bi,bj) = slcon_Kyz(i,j,K,bi,bj) 
+     &                            * maskC(i,j,K,bi,bj)
+          slcon_Kzz(i,j,K,bi,bj) = slcon_Kzz(i,j,K,bi,bj) 
+     &                            * maskC(i,j,K,bi,bj)
          ENDIF
         END DO
        END DO
       END DO
 
-
+#endif /* ALLOW_SLANTWISE */
 
       RETURN
       END
-#endif /* ALLOW_SLANTWISE */
+

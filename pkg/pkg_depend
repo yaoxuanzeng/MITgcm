@@ -44,4 +44,5 @@ tapenade	+autodiff
 grdchk		+autodiff	+cost		+ctrl
 showflops	+runclock
 steep_cavity    +shelfice
+slantwise	+generic_advdiff
 

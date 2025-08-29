@@ -1,0 +1,42 @@
+** WARNING ** INI_PARMS: Ignores diffKrT (or Kp,Kz) setting in file "data" with ALLOW_3D_DIFFKR
+- WARNING - from DIAGNOSTICS_OUT at iter=       500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      1500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      2500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      3500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      4500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      5500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      6500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      7500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      8500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+- WARNING - from DIAGNOSTICS_OUT at iter=      9500
+- WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+- WARNING -   has not been filled (ndiag=  0 )
+WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+NORMAL END

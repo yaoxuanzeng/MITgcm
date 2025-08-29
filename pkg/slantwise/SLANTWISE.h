@@ -12,8 +12,6 @@ C     | written by Yaoxuan Zeng at Aug, 2025
 C     *================================================================*
 CEOP
 
-#include "SIZE.h"
-
 C--   Scalar parameters
       COMMON /SLANTWISE_PARAMS/
      &   	  slcon_on, slcon_useconstH,

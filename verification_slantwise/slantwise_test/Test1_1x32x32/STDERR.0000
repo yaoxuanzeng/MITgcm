@@ -1,0 +1,41 @@
+(PID.TID 0000.0001) ** WARNING ** INI_PARMS: Ignores diffKrT (or Kp,Kz) setting in file "data" with ALLOW_3D_DIFFKR
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=       500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      1500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      2500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      3500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      4500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      5500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      6500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      7500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      8500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead
+(PID.TID 0000.0001) - WARNING - from DIAGNOSTICS_OUT at iter=      9500
+(PID.TID 0000.0001) - WARNING -   diag.#   115 : DFrE_TH  (#   4 ) in outp.Stream: Diag_heat
+(PID.TID 0000.0001) - WARNING -   has not been filled (ndiag=  0 )
+(PID.TID 0000.0001) WARNING DIAGNOSTICS_OUT  => write ZEROS instead

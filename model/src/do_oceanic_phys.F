@@ -23,6 +23,9 @@
 # ifdef ALLOW_GMREDI
 #  include "GMREDI_OPTIONS.h"
 # endif
+# ifdef ALLOW_SLANTWISE
+#  include "SLANTWISE_OPTIONS.h"
+# endif
 # ifdef ALLOW_KPP
 #  include "KPP_OPTIONS.h"
 # endif
@@ -115,6 +118,9 @@ C       |
 C       |-- GMREDI_CALC_TENSOR
 C       |-- GMREDI_CALC_TENSOR_DUMMY
 C       |
+C       |-- SLANTWISE_CALC_TENSOR
+C       |-- SLANTWISE_CALC_TENSOR_DUMMY
+C       |
 C       |-- DWNSLP_CALC_FLOW
 C       |-- DWNSLP_CALC_FLOW
 C       |
@@ -160,6 +166,9 @@ C     == Global variables ===
 # include "EOS.h"
 # ifdef ALLOW_GMREDI
 #  include "GMREDI.h"
+# endif
+# ifdef ALLOW_SLANTWISE
+#  include "SLANTWISE.h"
 # endif
 # ifdef ALLOW_KPP
 #  include "KPP.h"
@@ -235,7 +244,7 @@ C     kSrf          :: surface index
       INTEGER i, j, k, kSrf
       CHARACTER*(MAX_LEN_MBUF) msgBuf
       INTEGER doDiagsRho
-      LOGICAL calcGMRedi, calcKPP, calcConvect
+      LOGICAL calcGMRedi, calcSlantwise, calcKPP, calcConvect
 #ifdef ALLOW_DIAGNOSTICS
       LOGICAL  DIAGNOSTICS_IS_ON
       EXTERNAL DIAGNOSTICS_IS_ON
@@ -270,14 +279,16 @@ CEOP
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
-      calcGMRedi  = useGMRedi
-      calcKPP     = useKPP
-      calcConvect = ivdc_kappa.NE.0.
+      calcGMRedi    = useGMRedi
+      calcSlantwise = useSLANTWISE
+      calcKPP       = useKPP
+      calcConvect   = ivdc_kappa.NE.0.
 #ifdef ALLOW_OFFLINE
       IF ( useOffLine ) THEN
-        calcGMRedi = useGMRedi .AND. .NOT.offlineLoadGMRedi
-        calcKPP    = useKPP    .AND. .NOT.offlineLoadKPP
-        calcConvect=calcConvect.AND. .NOT.offlineLoadConvec
+        calcGMRedi    = useGMRedi .AND. .NOT.offlineLoadGMRedi
+        calcSlantwise = useSLANTWISE .AND. .NOT.offlineLoadSlantwise
+        calcKPP       = useKPP    .AND. .NOT.offlineLoadKPP
+        calcConvect   = calcConvect.AND. .NOT.offlineLoadConvec
       ENDIF
 #endif /* ALLOW_OFFLINE */
 
@@ -625,7 +636,7 @@ C     uninitialised but inert locations.
         DO k=1,Nr
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-C This is currently used by GMRedi, IVDC, MXL-depth  and Diagnostics
+C This is currently used by GMRedi, Slantwise, IVDC, MXL-depth  and Diagnostics
            sigmaX(i,j,k) = 0. _d 0
            sigmaY(i,j,k) = 0. _d 0
            sigmaR(i,j,k) = 0. _d 0
@@ -698,6 +709,22 @@ cph although some of these are re-initialised later.
          ENDDO
         ENDDO
 # endif /* ALLOW_GMREDI */
+#ifdef ALLOW_OFFLINE
+       ENDIF
+       IF ( calcSlantwise ) THEN
+#endif
+# ifdef ALLOW_SLANTWISE
+        DO k=1,Nr
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           Kwy(i,j,k,bi,bj)  = 0. _d 0
+           Kwz(i,j,k,bi,bj)  = 0. _d 0
+           Kvy(i,j,k,bi,bj)  = 0. _d 0
+           Kvz(i,j,k,bi,bj)  = 0. _d 0
+          ENDDO
+         ENDDO
+        ENDDO
+# endif /* ALLOW_SLANTWISE */
 #ifdef ALLOW_OFFLINE
        ENDIF
        IF ( calcKPP ) THEN
@@ -808,8 +835,9 @@ C--     Start of diagnostic loop
         DO k=Nr,1,-1
 
 C--       Calculate gradients of potential density for isoneutral
-C         slope terms (e.g. GM/Redi tensor or IVDC diffusivity)
-          IF ( calcGMRedi .OR. (k.GT.1 .AND. calcConvect)
+C         slope terms (e.g. GM/Redi or slantwise tensor or IVDC diffusivity)
+          IF ( calcGMRedi .OR. calcSlantwise 
+     &         .OR. (k.GT.1 .AND. calcConvect)
      &         .OR. usePP81 .OR. useKL10
      &         .OR. useMY82 .OR. useGGL90
      &         .OR. useSALT_PLUME .OR. doDiagsRho.GE.1 ) THEN
@@ -1059,6 +1087,19 @@ C--     Calculate iso-neutral slopes for the GM/Redi parameterisation
 #endif /* ALLOW_AUTODIFF and not ALLOW_OFFLINE */
         ENDIF
 #endif /* ALLOW_GMREDI */
+
+        IF ( calcSlantwise ) THEN
+#ifdef ALLOW_DEBUG
+         IF (debugMode) CALL DEBUG_CALL('SLANTWISE_CALC_TENSOR',myThid)
+#endif
+#ifdef ALLOW_SLANTWISE
+          CALL SLANTWISE_CALC_TENSOR(
+     I             bi, bj, iMin, iMax, jMin, jMax,
+     I             sigmaR, sigmaY,
+     I             myTime, myIter, myThid )
+        ENDIF
+#endif /* ALLOW_SLANTWISE */
+
 
 #ifdef ALLOW_DOWN_SLOPE
         IF ( useDOWN_SLOPE ) THEN

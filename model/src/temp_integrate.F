@@ -238,7 +238,7 @@ CADJ STORE gtNm1(:,:,:,bi,bj)  = comlev1_bibj, key=tkey, kind=isbyte
 #ifdef INCLUDE_CALC_DIFFUSIVITY_CALL
       CALL CALC_3D_DIFFUSIVITY(
      I         bi, bj, iMin, iMax, jMin, jMax,
-     I         GAD_TEMPERATURE, useGMredi, useKPP,
+     I         GAD_TEMPERATURE, useGMredi, useKPP, useSLANTWISE,
      O         kappaRk,
      I         myThid )
 # ifdef ALLOW_AUTODIFF_TAMC
@@ -350,6 +350,7 @@ c       m1 = 1 + MOD(iterNb+1,2)
      I           GAD_TEMPERATURE, tempAdvScheme, tempVertAdvScheme,
      I           calcAdvection, tempImplVertAdv, AdamsBashforth_T,
      I           tempVertDiff4, useGMRedi, useKPP, temp_stayPositive,
+     I           useSLANTWISE,
      O           fZon, fMer,
      U           fVer, gT_loc,
      I           myTime, myIter, myThid )
@@ -365,6 +366,7 @@ c       m1 = 1 + MOD(iterNb+1,2)
      I           GAD_TEMPERATURE, tempAdvScheme, tempVertAdvScheme,
      I           calcAdvection, tempImplVertAdv, AdamsBashforth_T,
      I           tempVertDiff4, useGMRedi, useKPP, temp_stayPositive,
+     I           useSLANTWISE,
      O           fZon, fMer,
      U           fVer, gT_loc,
      I           myTime, myIter, myThid )
@@ -511,7 +513,8 @@ CADJ STORE recip_hFac(:,:,:)  = comlev1_bibj, key = tkey, kind = isbyte
 
 #ifdef ALLOW_TIMEAVE
       useVariableK = useKPP .OR. usePP81 .OR. useKL10 .OR. useMY82
-     &       .OR. useGGL90 .OR. useGMredi .OR. ivdc_kappa.NE.0.
+     &       .OR. useGGL90 .OR. useGMredi .OR. useSLANTWISE
+     &       .OR. ivdc_kappa.NE.0.
       IF ( taveFreq.GT.0. .AND. useVariableK
      &                    .AND.implicitDiffusion ) THEN
         CALL TIMEAVE_CUMUL_DIF_1T( TdiffRtave,

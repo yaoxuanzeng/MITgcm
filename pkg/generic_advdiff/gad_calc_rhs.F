@@ -16,6 +16,7 @@ C !INTERFACE: ==========================================================
      I           advectionSchArg, vertAdvecSchArg,
      I           calcAdvection, implicitAdvection, applyAB_onTracer,
      I           trUseDiffKr4, trUseGMRedi, trUseKPP, trUseSmolHack,
+     I           trUseSlantwise,
      O           fZon, fMer,
      U           fVerT, gTracer,
      I           myTime, myIter, myThid )
@@ -30,6 +31,7 @@ C
 C Contributions to the flux are calculated and added:
 C \begin{equation*}
 C {\bf F} = {\bf F}_{adv} + {\bf F}_{diff} +{\bf F}_{GM} + {\bf F}_{KPP}
+C + {\bf F}_{slantwise}
 C \end{equation*}
 C
 C The tendency is the divergence of the fluxes:
@@ -73,7 +75,7 @@ C TracerN          :: tracer field @ time-step n (Note: only used
 C                     if applying AB on tracer field rather than on tendency gTr)
 C TracAB           :: current tracer field (@ time-step n if applying AB on gTr
 C                     or extrapolated fwd in time to n+1/2 if applying AB on Tr)
-C trIdentity       :: tracer identifier (required for KPP,GM)
+C trIdentity       :: tracer identifier (required for KPP,GM,slantwise)
 C advectionSchArg  :: advection scheme to use (Horizontal plane)
 C vertAdvecSchArg  :: advection scheme to use (Vertical direction)
 C calcAdvection    :: =False if Advec computed with multiDim scheme
@@ -83,6 +85,7 @@ C trUseDiffKr4     :: true if this tracer uses vertical bi-harmonic diffusion
 C trUseGMRedi      :: true if this tracer uses GM-Redi
 C trUseKPP         :: true if this tracer uses KPP
 C trUseSmolHack    :: true if this tracer uses Smolarkiewicz-Hack to remain > 0
+C trUseSlantwise   :: true if this tracer uses slantwise
 C myTime           :: current time
 C myIter           :: iteration number
 C myThid           :: thread number
@@ -109,6 +112,7 @@ C myThid           :: thread number
       LOGICAL calcAdvection
       LOGICAL implicitAdvection, applyAB_onTracer
       LOGICAL trUseDiffKr4, trUseGMRedi, trUseKPP, trUseSmolHack
+      LOGICAL trUseSlantwise
       _RL     myTime
       INTEGER myIter, myThid
 
@@ -476,6 +480,16 @@ C-    GM/Redi flux in Y
      I         myThid )
       ENDIF
 #endif
+#ifdef ALLOW_SLANTWISE
+C-    slantwise flux in Y
+      IF ( trUseSlantwise ) THEN
+        CALL SLANTWISE_YTRANSPORT(
+     I         trIdentity, bi, bj, k, iMin, iMax, jMin, jMax+1,
+     I         yA, maskUp, TracerN,
+     U         df,
+     I         myThid )
+      ENDIF
+#endif
 C     anelastic: advect.fluxes are scaled by rhoFac but hor.diff. flx are not
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
@@ -621,6 +635,17 @@ C           boundary condition.
 C-    GM/Redi flux in R
       IF ( trUseGMRedi ) THEN
         CALL GMREDI_RTRANSPORT(
+     I         trIdentity, bi, bj, k, iMin, iMax, jMin, jMax,
+     I         maskUp, TracerN,
+     U         df,
+     I         myThid )
+      ENDIF
+#endif
+
+#ifdef ALLOW_SLANTWISE
+C-    slantwise flux in R
+      IF ( trUseSlantwise ) THEN
+        CALL SLANTWISE_RTRANSPORT(
      I         trIdentity, bi, bj, k, iMin, iMax, jMin, jMax,
      I         maskUp, TracerN,
      U         df,

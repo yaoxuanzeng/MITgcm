@@ -230,7 +230,7 @@ CADJ STORE gsNm1(:,:,:,bi,bj)  = comlev1_bibj, key=tkey, kind=isbyte
 #ifdef INCLUDE_CALC_DIFFUSIVITY_CALL
       CALL CALC_3D_DIFFUSIVITY(
      I         bi, bj, iMin, iMax, jMin, jMax,
-     I         GAD_SALINITY, useGMredi, useKPP,
+     I         GAD_SALINITY, useGMredi, useKPP, useSLANTWISE,
      O         kappaRk,
      I         myThid )
 # ifdef ALLOW_AUTODIFF_TAMC
@@ -342,6 +342,7 @@ c       m1 = 1 + MOD(iterNb+1,2)
      I           GAD_SALINITY, saltAdvScheme, saltVertAdvScheme,
      I           calcAdvection, saltImplVertAdv, AdamsBashforth_S,
      I           saltVertDiff4, useGMRedi, useKPP, salt_stayPositive,
+     I           useSLANTWISE,
      O           fZon, fMer,
      U           fVer, gS_loc,
      I           myTime, myIter, myThid )
@@ -357,6 +358,7 @@ c       m1 = 1 + MOD(iterNb+1,2)
      I           GAD_SALINITY, saltAdvScheme, saltVertAdvScheme,
      I           calcAdvection, saltImplVertAdv, AdamsBashforth_S,
      I           saltVertDiff4, useGMRedi, useKPP, salt_stayPositive,
+     I           useSLANTWISE,
      O           fZon, fMer,
      U           fVer, gS_loc,
      I           myTime, myIter, myThid )
