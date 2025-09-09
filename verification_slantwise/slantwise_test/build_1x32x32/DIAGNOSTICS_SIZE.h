@@ -1,1 +1,0 @@
-../code_1x32x32/DIAGNOSTICS_SIZE.h

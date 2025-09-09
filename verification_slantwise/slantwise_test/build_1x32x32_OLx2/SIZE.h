@@ -1,1 +1,0 @@
-../code_1x32x32/SIZE.h

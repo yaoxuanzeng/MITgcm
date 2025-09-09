@@ -74,9 +74,30 @@ C--   Set H: column depth for spherical, const for cartisian
           END DO
          END DO
         END DO
+      
+#ifdef SLANTWISE_DEBUG
+        DO k = 1, Nr
+         DO j = 1-OLy, sNy+OLy
+          DO i = 1-OLx, sNx+OLx
+           slcon_maskS(i,j,k,bi,bj) = 1
+           slcon_maskW(i,j,k,bi,bj) = 1
+           slcon_maskC(i,j,k,bi,bj) = 1
+           slcon_maskFk(i,j,k,bi,bj) = 1
+           slcon_sigmay(i,j,k,bi,bj) = 0
+           slcon_sigmaz(i,j,k,bi,bj) = 0
+          END DO
+         END DO
+        END DO
+#endif
 
        END DO
       END DO
+
+#ifdef ALLOW_DIAGNOSTICS
+      IF ( useDiagnostics ) THEN
+        CALL SLANTWISE_DIAGNOSTICS_INIT( myThid )
+      ENDIF
+#endif
 
         RETURN
         END

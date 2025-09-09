@@ -501,7 +501,8 @@ C     anelastic: advect.fluxes are scaled by rhoFac but hor.diff. flx are not
 C-    Diagnostics of Tracer flux in Y dir (mainly Diffusive terms),
 C       excluding advective terms:
       IF ( useDiagnostics .AND.
-     &    (diffKh.NE.0. .OR. diffK4 .NE.0. .OR. trUseGMRedi) ) THEN
+     &    (diffKh.NE.0. .OR. diffK4 .NE.0. 
+     &    .OR. trUseGMRedi .OR. trUseSlantwise) ) THEN
           diagName = 'DFyE'//diagSufx
           CALL DIAGNOSTICS_FILL( df, diagName, k,1, 2,bi,bj, myThid )
 #ifdef ALLOW_LAYERS
@@ -663,8 +664,8 @@ C-    slantwise flux in R
 C-    Diagnostics of Tracer flux in R dir (mainly Diffusive terms),
 C       Explicit terms only & excluding advective terms:
       IF ( useDiagnostics .AND.
-     &    (.NOT.implicitDiffusion .OR. trUseDiffKr4 .OR. trUseGMRedi)
-     &   ) THEN
+     &    (.NOT.implicitDiffusion .OR. trUseDiffKr4 
+     &    .OR. trUseGMRedi  .OR. trUseSlantwise) ) THEN
           diagName = 'DFrE'//diagSufx
           CALL DIAGNOSTICS_FILL( df, diagName, k,1, 2,bi,bj, myThid )
 #ifdef ALLOW_LAYERS

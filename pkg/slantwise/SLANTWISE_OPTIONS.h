@@ -29,7 +29,7 @@ C--   Keep/intermediate tensor components (Kyy, Kyz, Kzz) for diagnostics
 #define SLANTWISE_KEEP_TENSOR
 
 C--   Cheap debug: extra checks/prints under #ifdef SLANTWISE_DEBUG
-#undef  SLANTWISE_DEBUG
+#define  SLANTWISE_DEBUG
 
 C--   Placeholder: allow coupling to cost function (not used by default)
 #undef  ALLOW_SLANTWISE_COST

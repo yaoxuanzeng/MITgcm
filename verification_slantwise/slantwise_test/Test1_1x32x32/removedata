@@ -1,6 +1,0 @@
-rm -f *.data
-rm -f *.meta
-rm -f slurm*
-rm -f STD*
-rm -f scratch*
-

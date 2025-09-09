@@ -43,6 +43,7 @@ C--   Set tensor eliments
            slcon_Kyy(i,j,k,bi,bj) = 0.0d0
            slcon_Kyz(i,j,k,bi,bj) = 0.0d0
            slcon_Kzz(i,j,k,bi,bj) = 0.0d0
+           slcon_bn(i,j,k,bi,bj) = 0.0d0
           END DO
          END DO
         END DO

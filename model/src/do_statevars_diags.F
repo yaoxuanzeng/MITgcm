@@ -121,6 +121,12 @@ C                    and stagger/synchronous TimeStep
        ENDIF
 #endif /* ALLOW_MYPACKAGE */
 
+#ifdef ALLOW_SLANTWISE
+       IF ( seqFlag.EQ.0 .AND. useSLANTWISE ) THEN
+         CALL SLANTWISE_DIAGNOSTICS_STATE( myTime, myIter, myThid )
+       ENDIF
+#endif /* ALLOW_SLANTWISE */
+
       ENDIf
 #endif /* ALLOW_DIAGNOSTICS */
 

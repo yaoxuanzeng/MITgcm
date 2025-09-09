@@ -48,6 +48,7 @@ C     myThid     :: my Thread Id number
       _RL Tracer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       _RL df    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       INTEGER myThid
+
 CEOP
 
 #ifdef ALLOW_SLANTWISE
@@ -57,10 +58,10 @@ C     !LOCAL VARIABLES:
       _RL maskp1 ! mask
       _RL Kyy_S, Kyz_S ! Tensor elements at the southern boundary
       _RL epsS ! Avoiding zero denominator
-      _RL dR_W_jk, dR_W_jm1k, dR_W_jkm1
-      _RL dR_W_jm1km1, dR_W_k, dR_W_km1 ! Gradients at W grids, used for calculating dCdz_S
+      _RL op5 ! 0.5
       _RL dCdz_S, dCdy_S ! Tracer gradients at the southern boundary / W grids
 
+      op5 = 0.5 _d 0
       epsS = 1.D-20
       km1 = MAX(k-1,1)
       kp1 = MIN(k+1,Nr)
@@ -68,39 +69,47 @@ C     !LOCAL VARIABLES:
 C--   Loop for each tile
       DO j = jMin, jMax
        DO i = iMin, iMax
+
+C     Filling mask for debug        
+#ifdef SLANTWISE_DEBUG
+        slcon_maskFk(i,j,K,bi,bj) = maskFk(i,j)
+#endif
+
 C-    Calculate the tensor element at the southern boundary
-        Kyy_S = ( _maskS(i,j  ,k,bi,bj)*slcon_Kyy(i,j  ,k,bi,bj)
-     &          + _maskS(i,j-1,k,bi,bj)*slcon_Kyy(i,j-1,k,bi,bj) ) /
-     &          (_maskS(i,j  ,k,bi,bj) + _maskS(i,j-1,k,bi,bj) + epsS)
-        Kyz_S = ( _maskS(i,j  ,k,bi,bj)*slcon_Kyz(i,j  ,k,bi,bj)
-     &          + _maskS(i,j-1,k,bi,bj)*slcon_Kyz(i,j-1,k,bi,bj) ) /
-     &          (_maskS(i,j  ,k,bi,bj) + _maskS(i,j-1,k,bi,bj) + epsS)
+        Kyy_S = ( maskC(i,j  ,k,bi,bj)*slcon_Kyy(i,j  ,k,bi,bj)
+     &          + maskC(i,j-1,k,bi,bj)*slcon_Kyy(i,j-1,k,bi,bj) ) /
+     &          ( maskC(i,j  ,k,bi,bj) + maskC(i,j-1,k,bi,bj) + epsS)
+        Kyz_S = ( maskC(i,j  ,k,bi,bj)*slcon_Kyz(i,j  ,k,bi,bj)
+     &          + maskC(i,j-1,k,bi,bj)*slcon_Kyz(i,j-1,k,bi,bj) ) /
+     &          ( maskC(i,j  ,k,bi,bj) + maskC(i,j-1,k,bi,bj) + epsS)
 C-    Calculate the tracer gradients at the southern boundary
 C     Calculate dC/dy at the southern boundary
         dCdy_S = (Tracer(i,j,k)-Tracer(i,j-1,k))*_maskS(i,j,k,bi,bj)
      &          *_recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
-C     Calculate dC/dz at W grids
+C     Calculate dC/dz at W grids, copied from gmredi
         maskp1 = 1. _d 0
         IF (k.GE.Nr) maskp1 = 0. _d 0
-        dR_W_jkm1   = ( Tracer(i,j  ,km1) - Tracer(i,j  ,k) )
-     &               * recip_drC(k) 
-        dR_W_jm1km1 = ( Tracer(i,j-1,km1) - Tracer(i,j-1,k) )
-     &               * recip_drC(k)
-        dR_W_km1    = 0.5d0 * ( maskFk(i,j-1) * dR_W_jm1km1 
-     &               + maskFk(i,j) * dR_W_jkm1 )
-        dR_W_jk     = ( Tracer(i, j ,k) - Tracer(i, j ,kp1) )
-     &               * recip_drC(kp1)
-        dR_W_jm1k   = ( Tracer(i,j-1,k) - Tracer(i,j-1,kp1) )
-     &               * recip_drC(kp1)
-        dR_W_k      = 0.5d0*( maskC(i,j-1,k ,bi,bj)
-     &               * maskC(i,j-1,kp1,bi,bj)*maskp1*dR_W_jm1k
-     &               + maskC(i,j,k ,bi,bj)*maskC(i,j,kp1,bi,bj)
-     &               * maskp1*dR_W_jk)
-
-        dCdz_S = 0.5d0 * ( dR_W_km1 + dR_W_k )
+         dCdz_S = op5*(
+     &    +op5*recip_drC(k)*
+     &        ( maskFk(i,j-1)*
+     &            ( Tracer(i,j-1,km1)-Tracer(i,j-1,k) )
+     &         +maskFk(i, j )*
+     &            ( Tracer(i, j ,km1)-Tracer(i, j ,k) )
+     &        )
+     &    +op5*recip_drC(kp1)*
+     &        ( maskC(i,j-1,k,bi,bj)*maskC(i,j-1,kp1,bi,bj)*maskp1*
+     &            ( Tracer(i,j-1,k)-Tracer(i,j-1,kp1) )
+     &         +maskC(i, j ,k,bi,bj)*maskC(i, j ,kp1,bi,bj)*maskp1*
+     &            ( Tracer(i, j ,k)-Tracer(i, j ,kp1) )
+     &        )          )
 C-    Calculate the flux
-        df(i,j)= df(i,j)-yA(i,j)*(Kyy_S*dCdy_S+Kyz_S*dCdz_S)
-     &          *_maskS(i,j,k,bi,bj)
+        slcon_qykyy(i,j,k,bi,bj) = -yA(i,j)*(Kyy_S*dCdy_S)
+     &                             *_maskS(i,j,k,bi,bj)
+        slcon_qykyz(i,j,k,bi,bj) = -yA(i,j)*(Kyz_S*dCdz_S)
+     &                             *_maskS(i,j,k,bi,bj)
+        df(i,j) = df(i,j)
+     &           + slcon_qykyy(i,j,k,bi,bj)
+     &           + slcon_qykyz(i,j,k,bi,bj)
        ENDDO
       ENDDO
 

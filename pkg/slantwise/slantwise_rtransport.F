@@ -44,6 +44,7 @@ C     df           :: Diffusive flux component work array.
       _RL Tracer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       _RL df    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       INTEGER myThid
+
 CEOP
 
 #ifdef ALLOW_SLANTWISE
@@ -51,11 +52,12 @@ CEOP
 C     !LOCAL VARIABLES
       INTEGER i,j,km1 ! Local indices
       _RL epsW ! Avoiding zero denominator
+      _RL op5 ! 0.5
       _RL dCdz_W, dCdy_W ! Tracer gradients at W grids
       _RL Kyz_W, Kzz_W ! Tensor elements at W grids
-      _RL dY_S_jk, dY_S_jp1k, dY_S_jkm1, dY_S_jp1km1, dY_k, dY_km1 ! Gradients at the southern boundary, used to calculate dCdy_W 
 
       epsW  = 1.D-20
+      op5 = 0.5 _d 0
       km1  = MAX(k-1,1)
 
 C--   Loop for each tile
@@ -63,40 +65,41 @@ C--   Loop for each tile
        DO i = iMin, iMax
 
 C-    Calculate the tensor element at the W grids
-        Kyz_W = (_maskW(i,j,k  ,bi,bj)*slcon_Kyz(i,j,k  ,bi,bj)
-     &          +_maskW(i,j,km1,bi,bj)*slcon_Kyz(i,j,km1,bi,bj) ) 
-     &          /(_maskW(i,j,k  ,bi,bj)+_maskW(i,j,km1,bi,bj)+epsW)
+        Kyz_W = (maskC(i,j,k  ,bi,bj)*slcon_Kyz(i,j,k  ,bi,bj)
+     &          +maskC(i,j,km1,bi,bj)*slcon_Kyz(i,j,km1,bi,bj) ) 
+     &          /(maskC(i,j,k  ,bi,bj)+maskC(i,j,km1,bi,bj)+epsW)
 C     Adding Kzz in the slantwise_calc_diff.F
-C        Kzz_W = (_maskW(i,j,k  ,bi,bj)*slcon_Kzz(i,j,k  ,bi,bj)
-C     &          +_maskW(i,j,km1,bi,bj)*slcon_Kzz(i,j,km1,bi,bj) ) 
-C     &          /(_maskW(i,j,k  ,bi,bj)+_maskW(i,j,km1,bi,bj)+epsW)
+C        Kzz_W = (maskC(i,j,k  ,bi,bj)*slcon_Kzz(i,j,k  ,bi,bj)
+C     &          +maskC(i,j,km1,bi,bj)*slcon_Kzz(i,j,km1,bi,bj) ) 
+C     &          /(maskC(i,j,k  ,bi,bj)+maskC(i,j,km1,bi,bj)+epsW)
 
 C-    Calculate the tracer gradients at the W grids
 C     Calculate dCdz_W at the W grids 
-C        dCdz_W =  _recip_drF(k) * ( Tracer(i,j,k) - Tracer(i,j,km1) ) * _maskW(i,j,k,bi,bj)
-C     Calculate dCdy_W at the W grids
-        dY_S_jp1k   = (Tracer(i,j+1,k  )-Tracer(i,j  ,k  )) 
-     &                *_recip_dyC(i,j+1,bi,bj)*recip_deepFacC(k  )
-     &                *_maskS(i,j+1,k  ,bi,bj)
-        dY_S_jk     = (Tracer(i,j  ,k  )-Tracer(i,j-1,k  ))     
-     &                *_recip_dyC(i,j  ,bi,bj)*recip_deepFacC(k  )
-     &                *_maskS(i,j  ,k  ,bi,bj)
-        dY_S_jp1km1 = (Tracer(i,j+1,km1)-Tracer(i,j  ,km1))     
-     &                *_recip_dyC(i,j+1,bi,bj)*recip_deepFacC(km1)
-     &                *_maskS(i,j+1,km1,bi,bj)
-        dY_S_jkm1   = (Tracer(i,j  ,km1)-Tracer(i,j-1,km1))
-     &                *_recip_dyC(i,j  ,bi,bj)*recip_deepFacC(km1)
-     &                *_maskS(i,j  ,km1,bi,bj)
-        dY_k   = 0.5D0 * ( dY_S_jp1k   + dY_S_jk   )
-        dY_km1 = 0.5D0 * ( dY_S_jp1km1 + dY_S_jkm1 )
-        dCdy_W = 0.5D0 * ( _maskW(i,j,k  ,bi,bj) * dY_k
-     &                 +   _maskW(i,j,km1,bi,bj) * dY_km1 )
+C        dCdz_W =  _recip_drF(k) * ( Tracer(i,j,k) - Tracer(i,j,km1) ) * maskC(i,j,k,bi,bj)
+C     Calculate dCdy_W at the W grids, copied from gmredi
+        IF (k.GT.1) THEN
+         dCdy_W = op5*(
+     &     op5*recip_deepFacC(k)
+     &        *( _maskS(i,j+1,k,bi,bj)*_recip_dyC(i,j+1,bi,bj)
+     &              *( Tracer(i,j+1,k) - Tracer(i,j,k) )
+     &         + _maskS(i, j ,k,bi,bj)*_recip_dyC(i, j ,bi,bj)
+     &              *( Tracer(i,j,k) - Tracer(i,j-1,k) )
+     &         )
+     &    +op5*recip_deepFacC(k-1)
+     &        *( _maskS(i,j+1,k-1,bi,bj)*_recip_dyC(i,j+1,bi,bj)
+     &              *( Tracer(i,j+1,k-1) - Tracer(i,j,k-1) )
+     &         + _maskS(i, j ,k-1,bi,bj)*_recip_dyC(i, j ,bi,bj)
+     &              *( Tracer(i,j,k-1) - Tracer(i,j-1,k-1) )
+     &         )          )
+        END IF
 
 C-    Calculate the flux
-C        df(i,j) = df(i,j)-_rA(i,j,bi,bj)*(Kyz_W*dCdy_W+Kzz_W*dCdz_W)
-C     &           *_maskW(i,j,k,bi,bj)*maskFk(i,j)
-         df(i,j) = df(i,j)-_rA(i,j,bi,bj)*(Kyz_W*dCdy_W)
-     &            *_maskW(i,j,k,bi,bj)*maskFk(i,j)
+         slcon_qzkyz(i,j,k,bi,bj) = -_rA(i,j,bi,bj)*(Kyz_W*dCdy_W)
+     &            *maskC(i,j,k,bi,bj)*maskFk(i,j)
+C         slcon_qzkzz(i,j,k,bi,bj) = -_rA(i,j,bi,bj)*(Kyz_W*dCdy_W)
+C     &            *maskC(i,j,k,bi,bj)*maskFk(i,j)
+         df(i,j) = df(i,j)
+     &            + slcon_qzkyz(i,j,k,bi,bj)
 
        END DO
       END DO
