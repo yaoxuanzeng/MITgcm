@@ -49,7 +49,7 @@ C-    do all levels :
         DO k=1,MIN(Nr,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-           KappaRx(i,j,k) = KappaRx(i,j,k)+slcon_Kzz(i,j,k,bi,bj)
+           KappaRx(i,j,k) = KappaRx(i,j,k)+slcon_Kwz(i,j,k,bi,bj)
      &           *maskInC(i,j,bi,bj)
           ENDDO
          ENDDO
@@ -59,7 +59,7 @@ C-    do level k=kArg only :
          k = MIN(kArg,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-           KappaRx(i,j,k) = KappaRx(i,j,k)+slcon_Kzz(i,j,kArg,bi,bj)
+           KappaRx(i,j,k) = KappaRx(i,j,k)+slcon_Kwz(i,j,kArg,bi,bj)
      &           *maskInC(i,j,bi,bj)
           ENDDO
          ENDDO

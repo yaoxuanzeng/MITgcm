@@ -37,14 +37,15 @@ C     bi, bj    :: Tile indices
 C     myTime    :: Current time in simulation
 C     myIter    :: Current iteration number in simulation
 C     myThid    :: My Thread Id. number
-C     sigmaR_C   :: Vertical density gradient at tracer grids
-C     sigmaY_C   :: Meridional density gradient at tracer grids
+C     sigmaRs   :: Vertical density gradient at southern boundary
+C     sigmaYr   :: Meridional density gradient at upper boundary
 
-      INTEGER bi, bj, iMin, iMax, jMin, jMax, K
+
+      INTEGER bi, bj, iMin, iMax, jMin, jMax, k
       _RL sigmaR(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       _RL sigmaY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
-      _RL sigmaY_C(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
-      _RL sigmaR_C(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
+      _RL sigmaRs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
+      _RL sigmaYr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       _RL myTime
       INTEGER myIter, myThid
 
@@ -53,108 +54,103 @@ CEOP
 #ifdef ALLOW_SLANTWISE
 
 C     !LOCAL VARIABLES
-      INTEGER i, j, kp1
-      _RL d2r, clat, slat
+      INTEGER i, j, kp1, maskp1
+      _RL d2r, clat, slat, lats
       _RL Kn, Kr, inv_f2
-      _RL maskp1, maskloc, epsmask
+      _RL maskupper, bn, localf, localfp
 
       d2r = 3.141592653589793D0 / 180.D0
-      epsmask = 1.D-20
 
-C     Calculating density gradients at the tracer grids
+      IF ( usingSphericalPolarGrid ) THEN
+       inv_f2 = rotationPeriod * rotationPeriod / 16. _d 0 
+     &            / 3.141592653589793D0 / 3.141592653589793D0
+      ELSE
+       inv_f2 = 1 / (f0 * f0 + fPrime * fPrime)
+      END IF
 
-      DO K = 1, Nr
-       DO i = 1-OLx, sNx+OLx
-        DO j = 1-OLy, sNy+OLy-1
+C     Calculating Kvy and Kvz at southern boundary
 
-C     Filling masks for debug
-#ifdef SLANTWISE_DEBUG
-         slcon_maskS(i,j,K,bi,bj) = _maskS(i,j,K,bi,bj)
-         slcon_maskW(i,j,K,bi,bj) = _maskW(i,j,K,bi,bj)
-         slcon_maskC(i,j,K,bi,bj) = maskC(i,j,K,bi,bj)
-#endif
-         maskloc = _maskS(i,j,K,bi,bj)
-         maskp1 = _maskS(i,j+1,K,bi,bj)
-         sigmaY_C(i,j,K) = (maskloc*sigmaY(i,j,K)
-     &                    + maskp1*sigmaY(i,j+1,K))
-     &                    / (maskloc+maskp1+epsmask)
-        END DO
-        sigmaY_C(i,sNy+OLy,K) = sigmaY_C(i,sNy+OLy-1,K)
-       END DO
-      END DO
-      
-      DO j = 1-OLy, sNy+OLy
-       DO i = 1-OLx, sNx+OLx
-        DO k = 2, Nr
-         kp1 = MIN(k+1,Nr)
-         maskloc = maskC(i,j,k,bi,bj)
-         maskp1  = maskC(i,j,kp1,bi,bj)
-         sigmaR_C(i,j,K) = (maskloc*sigmaR(i,j,k)
-     &                    + maskp1*sigmaR(i,j,kp1))
-     &                    / (maskloc+maskp1+epsmask)
-        END DO
-C     SigmaR is zero at the surface, but maskC is not
-        sigmaR_C(i,j,1) = sigmaR(i,j,2)*maskC(i,j,2,bi,bj)
-       END DO
-      END DO
+      DO k=Nr,1,-1
+       kp1 = MIN(Nr,k+1)
+       maskp1 = 1. _d 0
+       IF (k.GE.Nr) maskp1 = 0. _d 0
 
-#ifdef SLANTWISE_DEBUG
-      DO K = 1, Nr
-       DO i = 1-OLx, sNx+OLx
-        DO j = 1-OLy, sNy+OLy-1
-         slcon_sigmay(i,j,K,bi,bj) = sigmaY_C(i,j,k)
-         slcon_sigmaz(i,j,K,bi,bj) = sigmaR_C(i,j,k)
-         slcon_sy(i,j,K,bi,bj) = sigmaY(i,j,k)
-         slcon_sz(i,j,K,bi,bj) = sigmaR(i,j,k)
-        END DO
-       END DO
-      END DO
-#endif
-
-
-
-C     Calculating tensor elements
-
-      DO K = 1, Nr
-       DO j = 1-OLy, sNy+OLy
-        DO i = 1-OLx, sNx+OLx
-          IF ( maskC(i,j,K,bi,bj) .LE. 0.D0 ) THEN
-           slcon_Kyy(i,j,K,bi,bj) = 0.D0
-           slcon_Kyz(i,j,K,bi,bj) = 0.D0
-           slcon_Kzz(i,j,K,bi,bj) = 0.D0
+       DO j=1-OLy+1,sNy+OLy-1
+        DO i=1-OLx+1,sNx+OLx-1
+         IF ( _maskS(i,j,k,bi,bj) .LE. 0. _d 0 ) THEN
+          slcon_Kvy(i,j,k,bi,bj) = 0. _d 0
+          slcon_Kvz(i,j,k,bi,bj) = 0. _d 0
+         ELSE
+          sigmaRs(i,j,k) = 0.25 _d 0 *(sigmaR(i,j-1,k)+sigmaR(i,j,k)
+     &                     +(sigmaR(i,j-1,kp1)+sigmaR(i,j,kp1))*maskp1
+     &                      )*_maskS(i,j,k,bi,bj)
+          IF ( usingSphericalPolarGrid ) THEN
+           lats = yG(i,j,bi,bj)
           ELSE
-           clat = COS( slcon_lat(i,j,K,bi,bj) * d2r )
-           slat = SIN( slcon_lat(i,j,K,bi,bj) * d2r )
-           inv_f2 = 1/( fCori(i,j,bi,bj)*fCori(i,j,bi,bj)
-     &             + fCoriCos(i,j,bi,bj)*fCoriCos(i,j,bi,bj) )
-           slcon_bn(i,j,K,bi,bj) = 
-     &           (clat*sigmaY_C(i,j,K)+slat*sigmaR_C(i,j,K))
+           lats = slcon_constlat
+          END IF
+          clat = COS(lats * d2r)
+          slat = SIN(lats * d2r)
+          bn = (clat*sigmaY(i,j,k)+slat*sigmaRs(i,j,k))
      &          * gravitySign*gravity/rhoConst
-C     If bn>0, it is stable
-           IF (slcon_bn(i,j,K,bi,bj) .GT. 0.D0) THEN
-            slcon_Kyy(i,j,K,bi,bj) = 0.D0
-            slcon_Kyz(i,j,K,bi,bj) = 0.D0
-            slcon_Kzz(i,j,K,bi,bj) = 0.D0
-           ELSE
-            Kn = slcon_cn * ABS(slcon_bn(i,j,K,bi,bj)) 
-     &          * SQRT(ABS(slcon_bn(i,j,K,bi,bj))) * inv_f2 
-     &          * (slcon_Hn(i,j,K,bi,bj)*slcon_Hn(i,j,K,bi,bj))
-            Kr = slcon_cr * Kn
-C           Rotate diag(Kn,Kr) to (y,z) and store
-            slcon_Kyy(i,j,K,bi,bj) = Kn*clat*clat + Kr*slat*slat
-            slcon_Kyz(i,j,K,bi,bj) = (Kn-Kr)*slat*clat
-            slcon_Kzz(i,j,K,bi,bj) = Kn*slat*slat + Kr*clat*clat
-           ENDIF
-          slcon_Kyy(i,j,K,bi,bj) = slcon_Kyy(i,j,K,bi,bj) 
-     &                            * maskC(i,j,K,bi,bj)
-          slcon_Kyz(i,j,K,bi,bj) = slcon_Kyz(i,j,K,bi,bj) 
-     &                            * maskC(i,j,K,bi,bj)
-          slcon_Kzz(i,j,K,bi,bj) = slcon_Kzz(i,j,K,bi,bj) 
-     &                            * maskC(i,j,K,bi,bj)
+          IF (bn*slat .GE. 0.D0) THEN
+           slcon_Kvy(i,j,k,bi,bj) = 0. _d 0
+           slcon_Kvz(i,j,k,bi,bj) = 0. _d 0
+          ELSE
+           Kn = MIN(slcon_cn * ABS(bn)
+     &         * SQRT(ABS(bn)) * inv_f2
+     &         * (slcon_Hnv(i,j,k,bi,bj)*slcon_Hnv(i,j,k,bi,bj)),
+     &          slcon_maxkappa)
+           Kr = slcon_cr * Kn / slcon_cn
+           slcon_Kvy(i,j,k,bi,bj) = (Kn*clat*clat + Kr*slat*slat)
+           slcon_Kvz(i,j,k,bi,bj) = (Kn-Kr)*slat*clat
+          ENDIF
          ENDIF
         END DO
        END DO
       END DO
+
+C     Calculating kwy and kwz at upper boundary
+
+      DO k=Nr,2,-1
+       DO j=1-OLy+1,sNy+OLy-1
+        DO i=1-OLx+1,sNx+OLx-1
+         maskUpper = maskC(i,j,k-1,bi,bj)*maskC(i,j,k,bi,bj)
+         IF ( maskUpper .LE. 0. _d 0 ) THEN
+          slcon_Kwy(i,j,k,bi,bj) = 0. _d 0
+          slcon_Kwz(i,j,k,bi,bj) = 0. _d 0
+         ELSE
+          sigmaYr(i,j,k) = 0.25 _d 0 * (
+     &                        sigmaY(i,j+1,k-1)+sigmaY(i,j,k-1)
+     &                       +sigmaY(i,j+1, k )+sigmaY(i,j, k )
+     &                      )*maskUpper
+          IF ( usingSphericalPolarGrid ) THEN
+           lats = yC(i,j,bi,bj)
+          ELSE
+           lats = slcon_constlat
+          END IF
+          clat = COS(lats * d2r)
+          slat = SIN(lats * d2r)
+          bn = (clat*sigmaYr(i,j,k)+slat*sigmaR(i,j,k))
+     &          * gravitySign*gravity/rhoConst
+          IF (bn*slat .GE. 0.D0) THEN
+           slcon_Kwy(i,j,k,bi,bj) = 0. _d 0
+           slcon_Kwz(i,j,k,bi,bj) = 0. _d 0
+          ELSE
+           Kn = MIN(slcon_cn * ABS(bn)
+     &         * SQRT(ABS(bn)) * inv_f2
+     &         * (slcon_Hnw(i,j,k,bi,bj)*slcon_Hnw(i,j,k,bi,bj)),
+     &          slcon_maxkappa)
+           Kr = slcon_cr * Kn / slcon_cn
+           slcon_Kwy(i,j,k,bi,bj) = (Kn-Kr)*slat*clat
+           slcon_Kwz(i,j,k,bi,bj) = Kn*slat*slat + Kr*clat*clat
+          ENDIF
+         ENDIF
+        END DO
+       END DO
+      END DO
+
+
 
 #endif /* ALLOW_SLANTWISE */
 

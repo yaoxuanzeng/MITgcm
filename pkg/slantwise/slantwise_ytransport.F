@@ -28,6 +28,7 @@ C     == GLobal variables ==
 #include "SLANTWISE.h"
 #include "SLANTWISE_OPTIONS.h"
 #include "GAD.h"
+#include "DYNVARS.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     trIdentity :: tracer Id number
@@ -56,13 +57,14 @@ CEOP
 C     !LOCAL VARIABLES:
       INTEGER i,j,kp1,km1 ! local indices
       _RL maskp1 ! mask
-      _RL Kyy_S, Kyz_S ! Tensor elements at the southern boundary
-      _RL epsS ! Avoiding zero denominator
-      _RL op5 ! 0.5
       _RL dCdz_S, dCdy_S ! Tracer gradients at the southern boundary / W grids
+#ifdef SLANTWISE_TFLUX_DIAGNOSTICS
+      _RL dTdz_S, dTdy_S, Tflux
+#endif
+#ifdef SLANTWISE_SFLUX_DIAGNOSTICS
+      _RL dSdz_S, dSdy_S, Sflux
+#endif
 
-      op5 = 0.5 _d 0
-      epsS = 1.D-20
       km1 = MAX(k-1,1)
       kp1 = MIN(k+1,Nr)
 
@@ -70,46 +72,85 @@ C--   Loop for each tile
       DO j = jMin, jMax
        DO i = iMin, iMax
 
-C     Filling mask for debug        
-#ifdef SLANTWISE_DEBUG
-        slcon_maskFk(i,j,K,bi,bj) = maskFk(i,j)
-#endif
-
-C-    Calculate the tensor element at the southern boundary
-        Kyy_S = ( maskC(i,j  ,k,bi,bj)*slcon_Kyy(i,j  ,k,bi,bj)
-     &          + maskC(i,j-1,k,bi,bj)*slcon_Kyy(i,j-1,k,bi,bj) ) /
-     &          ( maskC(i,j  ,k,bi,bj) + maskC(i,j-1,k,bi,bj) + epsS)
-        Kyz_S = ( maskC(i,j  ,k,bi,bj)*slcon_Kyz(i,j  ,k,bi,bj)
-     &          + maskC(i,j-1,k,bi,bj)*slcon_Kyz(i,j-1,k,bi,bj) ) /
-     &          ( maskC(i,j  ,k,bi,bj) + maskC(i,j-1,k,bi,bj) + epsS)
 C-    Calculate the tracer gradients at the southern boundary
 C     Calculate dC/dy at the southern boundary
-        dCdy_S = (Tracer(i,j,k)-Tracer(i,j-1,k))*_maskS(i,j,k,bi,bj)
+        dCdy_S = (Tracer(i,j,k)-Tracer(i,j-1,k))
      &          *_recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
+
 C     Calculate dC/dz at W grids, copied from gmredi
         maskp1 = 1. _d 0
         IF (k.GE.Nr) maskp1 = 0. _d 0
-         dCdz_S = op5*(
-     &    +op5*recip_drC(k)*
+        dCdz_S = 0.5 _d 0*(
+     &    +0.5 _d 0*recip_drC(k)*
      &        ( maskFk(i,j-1)*
      &            ( Tracer(i,j-1,km1)-Tracer(i,j-1,k) )
      &         +maskFk(i, j )*
      &            ( Tracer(i, j ,km1)-Tracer(i, j ,k) )
      &        )
-     &    +op5*recip_drC(kp1)*
+     &    +0.5 _d 0*recip_drC(kp1)*
      &        ( maskC(i,j-1,k,bi,bj)*maskC(i,j-1,kp1,bi,bj)*maskp1*
      &            ( Tracer(i,j-1,k)-Tracer(i,j-1,kp1) )
      &         +maskC(i, j ,k,bi,bj)*maskC(i, j ,kp1,bi,bj)*maskp1*
      &            ( Tracer(i, j ,k)-Tracer(i, j ,kp1) )
      &        )          )
+
 C-    Calculate the flux
-        slcon_qykyy(i,j,k,bi,bj) = -yA(i,j)*(Kyy_S*dCdy_S)
-     &                             *_maskS(i,j,k,bi,bj)
-        slcon_qykyz(i,j,k,bi,bj) = -yA(i,j)*(Kyz_S*dCdz_S)
-     &                             *_maskS(i,j,k,bi,bj)
         df(i,j) = df(i,j)
-     &           + slcon_qykyy(i,j,k,bi,bj)
-     &           + slcon_qykyz(i,j,k,bi,bj)
+     &           -yA(i,j)*dCdy_S
+     &           *slcon_Kvy(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+     &           -yA(i,j)*dCdz_S
+     &           *slcon_Kvz(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+
+#ifdef SLANTWISE_TFLUX_DIAGNOSTICS
+        dTdy_S = (theta(i,j,k,bi,bj)-theta(i,j-1,k,bi,bj))
+     &          *_recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
+        dTdz_S = 0.5 _d 0*(
+     &    +0.5 _d 0*recip_drC(k)*
+     &        ( maskFk(i,j-1)*
+     &            ( theta(i,j-1,km1,bi,bj)-theta(i,j-1,k,bi,bj) )
+     &         +maskFk(i, j )*
+     &            ( theta(i, j ,km1,bi,bj)-theta(i, j ,k,bi,bj) )
+     &        )
+     &    +0.5 _d 0*recip_drC(kp1)*
+     &        ( maskC(i,j-1,k,bi,bj)*maskC(i,j-1,kp1,bi,bj)*maskp1*
+     &            ( theta(i,j-1,k,bi,bj)-theta(i,j-1,kp1,bi,bj) )
+     &         +maskC(i, j ,k,bi,bj)*maskC(i, j ,kp1,bi,bj)*maskp1*
+     &            ( theta(i, j ,k,bi,bj)-theta(i, j ,kp1,bi,bj) )
+     &        )          )
+        slcon_Ty(i,j,k,bi,bj) =  -yA(i,j)*dTdy_S
+     &           *slcon_Kvy(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+     &           -yA(i,j)*dTdz_S
+     &           *slcon_Kvz(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+#endif
+
+#ifdef SLANTWISE_SFLUX_DIAGNOSTICS
+        dSdy_S = (salt(i,j,k,bi,bj)-salt(i,j-1,k,bi,bj))
+     &          *_recip_dyC(i,j,bi,bj)*recip_deepFacC(k)
+        dSdz_S = 0.5 _d 0*(
+     &    +0.5 _d 0*recip_drC(k)*
+     &        ( maskFk(i,j-1)*
+     &            ( salt(i,j-1,km1,bi,bj)-salt(i,j-1,k,bi,bj) )
+     &         +maskFk(i, j )*
+     &            ( salt(i, j ,km1,bi,bj)-salt(i, j ,k,bi,bj) )
+     &        )
+     &    +0.5 _d 0*recip_drC(kp1)*
+     &        ( maskC(i,j-1,k,bi,bj)*maskC(i,j-1,kp1,bi,bj)*maskp1*
+     &            ( salt(i,j-1,k,bi,bj)-salt(i,j-1,kp1,bi,bj) )
+     &         +maskC(i, j ,k,bi,bj)*maskC(i, j ,kp1,bi,bj)*maskp1*
+     &            ( salt(i, j ,k,bi,bj)-salt(i, j ,kp1,bi,bj) )
+     &        )          )
+        slcon_Sy(i,j,k,bi,bj) =  -yA(i,j)*dSdy_S
+     &           *slcon_Kvy(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+     &           -yA(i,j)*dSdz_S
+     &           *slcon_Kvz(i,j,k,bi,bj)
+     &           *_maskS(i,j,k,bi,bj)
+#endif
+
        ENDDO
       ENDDO
 
@@ -117,12 +158,6 @@ C-    Calculate the flux
 
       RETURN
       END
-
-
-
-
-
-
 
 
 

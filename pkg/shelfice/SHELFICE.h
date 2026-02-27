@@ -87,6 +87,7 @@ C     SHELFICE_dump_mnc        :: use netcdf for snapshot output
 C     SHELFICE_tave_mnc        :: use netcdf for time-averaged output
 C     SHELFICE_dumpFreq        :: analoguous to dumpFreq (= default)
 C     SHELFICE_taveFreq        :: analoguous to taveFreq (= default)
+C     SHELFICE_IceAbove	       :: ice thickness above the domain (m)
 C
 C--   Fields
 C     kTopC                  :: index of the top "wet cell" (2D)
@@ -175,7 +176,8 @@ CEOP
      &     shiCdrag, shiZetaN, shiRc,
      &     shiPrandtl, shiSchmidt, shiKinVisc,
      &     SHELFICEremeshFrequency,
-     &     SHELFICEsplitThreshold, SHELFICEmergeThreshold
+     &     SHELFICEsplitThreshold, SHELFICEmergeThreshold,
+     &     SHELFICE_IceAbove
 
       _RL SHELFICE_dumpFreq, SHELFICE_taveFreq
       _RL SHELFICEsaltToHeatRatio
@@ -194,6 +196,7 @@ CEOP
       _RL SHELFICEsplitThreshold
       _RL SHELFICEmergeThreshold
       _RL SHELFICEsalinity
+      _RL SHELFICE_IceAbove
 
       COMMON /SHELFICE_PARM_C/
      &     SHELFICEloadAnomalyFile,

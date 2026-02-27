@@ -420,7 +420,7 @@ C--   if useMYPACKAGE=T, set mypackage parameters; otherwise just return
 
 #ifdef ALLOW_SLANTWISE
 C--   if useSLANTWISE=T, set slantwise parameters; otherwise just return
-      CALL SLANTWISE_READPARMS( myThid )
+      IF (useSlantwise) CALL SLANTWISE_READPARMS( myThid )
 #endif
 
       RETURN

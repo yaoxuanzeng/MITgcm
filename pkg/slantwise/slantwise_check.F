@@ -15,7 +15,7 @@ CEOP
 
       WRITE(msgBuf,'(A)') ' SLANTWISE_CHECK: package enabled.'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIGHT,1)
-
+ 
 #endif /* ALLOW_SLANTWISE */
 
       RETURN

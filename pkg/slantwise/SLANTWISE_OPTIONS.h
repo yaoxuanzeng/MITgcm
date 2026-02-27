@@ -25,14 +25,14 @@ C--   Allow time-varying H computed from stratification, instead of constant H
 C     (runtime flag still controls use; this switch compiles the code path).
 #undef  SLANTWISE_ALLOW_TIMEVAR_H
 
-C--   Keep/intermediate tensor components (Kyy, Kyz, Kzz) for diagnostics
-#define SLANTWISE_KEEP_TENSOR
+C--   Debug: extra outputs under #ifdef SLANTWISE_DEBUG
+#undef  SLANTWISE_DEBUG
 
-C--   Cheap debug: extra checks/prints under #ifdef SLANTWISE_DEBUG
-#define  SLANTWISE_DEBUG
+C--   Allow temperature flux output
+#define SLANTWISE_TFLUX_DIAGNOSTICS
 
-C--   Placeholder: allow coupling to cost function (not used by default)
-#undef  ALLOW_SLANTWISE_COST
+C--   Allow salinity flux output
+#define SLANTWISE_SFLUX_DIAGNOSTICS
 
 #endif /* ALLOW_SLANTWISE */
 #endif /* SLANTWISE_OPTIONS_H */

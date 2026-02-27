@@ -34,40 +34,53 @@ CEOP
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
 
-         CALL DIAGNOSTICS_FILL( slcon_Kyy,'SL_KYY  ',
+         CALL DIAGNOSTICS_FILL( slcon_Kvy,'SL_KVY  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_Kyz,'SL_KYZ  ',
+         CALL DIAGNOSTICS_FILL( slcon_Kvz,'SL_KVZ  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_Kzz,'SL_KZZ  ',
+         CALL DIAGNOSTICS_FILL( slcon_Kwy,'SL_KWY  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_Hn, 'SL_HN   ',
+         CALL DIAGNOSTICS_FILL( slcon_Kwz,'SL_KWZ  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_bn, 'SL_BN   ',
+         CALL DIAGNOSTICS_FILL( slcon_Hnv, 'SL_HNV  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_qykyy, 'SL_QyKyy',
+         CALL DIAGNOSTICS_FILL( slcon_Hnw, 'SL_HNW  ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_qykyz, 'SL_QyKyz',
+
+#ifdef SLANTWISE_TFLUX_DIAGNOSTICS
+         CALL DIAGNOSTICS_FILL( slcon_Ty, 'SL_Ty   ',
      &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_qzkyz, 'SL_QzKyz',
-     &                          0,Nr, 1, bi, bj, myThid )
-#ifdef SLANTWISE_DEBUG
-         CALL DIAGNOSTICS_FILL( slcon_maskS, 'SL_mskS ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_maskW, 'SL_mskW ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_maskC, 'SL_mskC ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_maskFk, 'SL_mskFk',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_sigmay, 'SL_sigY ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_sigmaz, 'SL_sigZ ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_sy, 'SL_sY   ',
-     &                          0,Nr, 1, bi, bj, myThid )
-         CALL DIAGNOSTICS_FILL( slcon_sz, 'SL_sZ   ',
+         CALL DIAGNOSTICS_FILL( slcon_Tz, 'SL_Tz   ',
      &                          0,Nr, 1, bi, bj, myThid )
 #endif
+#ifdef SLANTWISE_SFLUX_DIAGNOSTICS
+         CALL DIAGNOSTICS_FILL( slcon_Sy, 'SL_Sy   ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_Sz, 'SL_Sz   ',
+     &                          0,Nr, 1, bi, bj, myThid )
+#endif
+
+#ifdef SLANTWISE_DEBUG
+         CALL DIAGNOSTICS_FILL( slcon_debug1, 'SL_bug1 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug2, 'SL_bug2 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug3, 'SL_bug3 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug4, 'SL_bug4 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug5, 'SL_bug5 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug6, 'SL_bug6 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug7, 'SL_bug7 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug8, 'SL_bug8 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( slcon_debug9, 'SL_bug9 ',
+     &                          0,Nr, 1, bi, bj, myThid )
+#endif
+
         END DO
        END DO
 

@@ -43,120 +43,146 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
       IF ( useDiagnostics ) THEN
 
-        diagName  = 'SL_KYY  '
-        diagTitle = 'Kyy from slantwise convection'
+        diagName  = 'SL_KVY  '
+        diagTitle = 'Kvy from slantwise convection'
         diagUnits = 'm^2/s           '
-        diagCode  = 'SM      MR      '
+        diagCode  = 'VV P    MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_KYZ  '
-        diagTitle = 'Kyz from slantwise convection'
+        diagName  = 'SL_KVZ  '
+        diagTitle = 'Kvz from slantwise convection'
         diagUnits = 'm^2/s           '
-        diagCode  = 'SM      MR      '
+        diagCode  = 'VV      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
         
-        diagName  = 'SL_KZZ  '
-        diagTitle = 'Kzz from slantwise convection'
+        diagName  = 'SL_KWY  '
+        diagTitle = 'Kwy from slantwise convection'
         diagUnits = 'm^2/s           '
-        diagCode  = 'SM      MR      '
+        diagCode  = 'VM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_HN   '
-        diagTitle = 'Axial height of the unstable column'
+        diagName  = 'SL_KWZ  '
+        diagTitle = 'Kwz from slantwise convection'
+        diagUnits = 'm^2/s           '
+        diagCode  = 'SM P    MR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'SL_HNV  '
+        diagTitle = 'Axial height of the unstable column at V points'
+        diagUnits = 'm               '
+        diagCode  = 'VV      MR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+        
+        diagName  = 'SL_HNW  '
+        diagTitle = 'Axial height of the unstable column at W points'
         diagUnits = 'm               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
-        
-        diagName  = 'SL_BN   '
-        diagTitle = 'Axial buoyancy gradient'
-        diagUnits = 'm               '
-        diagCode  = 'SM      MR      '
+
+#ifdef SLANTWISE_TFLUX_DIAGNOSTICS
+        diagName  = 'SL_Ty   '
+        diagTitle = 'Meridional T flux'
+        diagUnits = '1               '
+        diagCode  = 'VV P    MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_QyKyy'
-        diagTitle = 'Qy from Kyy'
+        diagName  = 'SL_Tz   '
+        diagTitle = 'Vertical T flux'
         diagUnits = '1               '
-        diagCode  = 'SM      MR      '
+        diagCode  = 'VM      MR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif
+
+#ifdef SLANTWISE_SFLUX_DIAGNOSTICS
+        diagName  = 'SL_Sy   '
+        diagTitle = 'Meridional S flux'
+        diagUnits = '1               '
+        diagCode  = 'VV P    MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_QyKyz'
-        diagTitle = 'Qy from Kyz'
+        diagName  = 'SL_Sz   '
+        diagTitle = 'Vertical S flux'
         diagUnits = '1               '
-        diagCode  = 'SM      MR      '
+        diagCode  = 'VM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
-
-        diagName  = 'SL_QzKyz'
-        diagTitle = 'Qz from Kyz'
-        diagUnits = '1               '
-        diagCode  = 'SM      MR      '
-        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif
 
 #ifdef SLANTWISE_DEBUG
-        diagName  = 'SL_mskW '
-        diagTitle = 'maskW test'
+        diagName  = 'SL_bug1 '
+        diagTitle = 'Debug variable 1'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_mskS '
-        diagTitle = 'maskS test'
+        diagName  = 'SL_bug2 '
+        diagTitle = 'Debug variable 2'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_mskC '
-        diagTitle = 'maskC test'
+        diagName  = 'SL_bug3 '
+        diagTitle = 'Debug variable 3'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_mskFk'
-        diagTitle = 'maskFk test'
+        diagName  = 'SL_bug4 '
+        diagTitle = 'Debug variable 4'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_sigY '
-        diagTitle = 'drho/dy at C'
+        diagName  = 'SL_bug5 '
+        diagTitle = 'Debug variable 5'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_sigZ '
-        diagTitle = 'drho/dz at C'
+        diagName  = 'SL_bug6 '
+        diagTitle = 'Debug variable 6'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_sY   '
-        diagTitle = 'drho/dy raw'
+        diagName  = 'SL_bug7 '
+        diagTitle = 'Debug variable 7'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-        diagName  = 'SL_sZ   '
-        diagTitle = 'drho/dz raw'
+        diagName  = 'SL_bug8 '
+        diagTitle = 'Debug variable 8'
+        diagUnits = '1               '
+        diagCode  = 'SM      MR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'SL_bug9 '
+        diagTitle = 'Debug variable 9'
         diagUnits = '1               '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
 #endif
+
       ENDIF
 
 #endif /* ALLOW_DIAGNOSTICS */

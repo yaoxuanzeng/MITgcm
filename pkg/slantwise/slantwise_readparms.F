@@ -43,7 +43,9 @@ C--   Namelist
       NAMELIST /SLANTWISE_PARM01/
      &                          slcon_on, slcon_useconstH,
      &                          slcon_constlat, slcon_constH,
-     &                          slcon_cn, slcon_cr
+     &                          slcon_cn, slcon_cr, slcon_maxkappa,
+     &                          slconHnvFile, slconHnwFile
+
 
 C     default values
       slcon_on                = .FALSE.
@@ -51,8 +53,11 @@ C     default values
       slcon_constlat          = 45.d0
       slcon_constH            = 6.0d4
       slcon_cn                = 6.60d-1
-      slcon_cr                = 3.26d-1
-        
+      slcon_cr                = 2.15d-1
+      slcon_maxkappa          = 100.d0
+      slconHnvFile            = ' '
+      slconHnwFile            = ' '       
+
       WRITE(msgBuf,'(A)') 'SLANTWISE_READPARMS:opening data.slantwise'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIGHT,1)
       CALL OPEN_COPY_DATA_FILE(

@@ -295,12 +295,12 @@ C     assumes rhoConst*gravity*SItodBar=1 + missing both "shelficeLoadAnomaly"
 C      static contribution and etaN dynamical contribution:
 c         pLoc(I,J) = ABS(R_shelfIce(I,J,bi,bj))
 C-    new and accurate pLoc expression (just the weight of the ice):
-          pLoc(I,J) = shelficeMass(I,J,bi,bj)*gravity*SItodBar
+C          pLoc(I,J) = shelficeMass(I,J,bi,bj)*gravity*SItodBar
 C     adding calculation of rLoc with added surface ice thickness by yxz
-          rLoc(I,J) = ABS(R_shelfIce(I,J,bi,bj)) + 0.0 _d 4
+          rLoc(I,J) = ABS(R_shelfIce(I,J,bi,bj)) + SHELFICE_IceAbove
 C     if there are additional ice shell not prescribed in the model (not
 C     0.0), use the following pLoc calculation - yxz
-          pLoc(I,J) = (rUnit2mass*gravity*rLoc(I,J)+top_Pres+1. _d 5)*1. _d -4
+          pLoc(I,J) = rUnit2mass*gravity*rLoc(I,J)*1. _d -4
           tLoc(I,J) = theta(I,J,K,bi,bj)
           sLoc(I,J) = MAX(salt(I,J,K,bi,bj), zeroRL)
           velSq(I,J)= 0.
@@ -609,8 +609,10 @@ C           eps3 = eps3a/pLoc(I,J)
             IF ( aqe .NE. 0. _d 0 ) recip_aqe = 0.5 _d 0/aqe
 c           bqe = eps1*eps6 + eps3*eps7 - eps2
             bqe = eps1*eps6
-     &           + eps3a*( b
-     &                   + ( c0 - SHELFICEthetaSurface )/pLoc(I,J) )
+C      These two lines are wrong, still using pLoc to replace rLoc - yxz
+c     &           + eps3a*( b
+c     &                   + ( c0 - SHELFICEthetaSurface )/pLoc(I,J) )
+     &           + eps3 * eps7
      &           - eps2
      &           + eps8*( a0*sLoc(I,J) - eps7 )
      &           + (eps1*a0*dFac + (oneRL-dFac)*aqe) * SHELFICEsalinity

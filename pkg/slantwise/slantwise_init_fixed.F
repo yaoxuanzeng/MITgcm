@@ -31,67 +31,64 @@ C     !LOCAL VARIABLES:
       INTEGER i,j,k,bi,bj
 
 C     latitude calculation
-      _RL d2r, sinlat, coslat
-      _RL Rbot, Rloc ! Bottom and local radius for spherical grids
+      _RL d2r, Rbot
+      _RL sinlatw, coslatw, sinlatv, coslatv
+      _RL ylocv, ylocw, Rlocv, Rlocw ! Bottom and local radius for spherical grids
 
       d2r = 3.141592653589793D0 / 180.D0
 
 C--   Initialize fields, loop over tiles
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
+      IF (( slconHnvFile .NE. ' ') .AND. ( slconHnwFile .NE. ' ')) THEN
+       _BARRIER
+       CALL READ_REC_XYZ_RS( slconHnvFile, slcon_Hnv,
+     &                      1, 0, myThid )
+       CALL READ_REC_XYZ_RS( slconHnwFile, slcon_Hnw,
+     &                      1, 0, myThid )
+      ELSE
+       DO bj = myByLo(myThid), myByHi(myThid)
+        DO bi = myBxLo(myThid), myBxHi(myThid)
 
-C--   Set latitudes: local latitude for spherical, const lat for cartesian
-        
-        DO k = 1, Nr
-         DO j = 1-OLy, sNy+OLy
-          DO i = 1-OLx, sNx+OLx
-           IF ( usingSphericalPolarGrid ) THEN
-            slcon_lat(i,j,k,bi,bj) = yC(i,j,bi,bj)
-           ELSE
-            slcon_lat(i,j,k,bi,bj) = slcon_constlat
-           ENDIF
-          END DO
-         END DO
-        END DO
+C--    Set H: column depth for spherical, const for cartisian
+         DO k = 1, Nr
+          DO j = 1-OLy, sNy+OLy
+           DO i = 1-OLx, sNx+OLx
+            IF ( usingSphericalPolarGrid ) THEN
+             sinlatv = SIN(yG(i,j,bi,bj)*d2r)
+             coslatv = COS(yG(i,j,bi,bj)*d2r)
+             sinlatw = SIN(yC(i,j,bi,bj)*d2r)
+             coslatw = COS(yC(i,j,bi,bj)*d2r)
 
-C--   Set H: column depth for spherical, const for cartisian
-        DO k = 1, Nr
-         DO j = 1-OLy, sNy+OLy
-          DO i = 1-OLx, sNx+OLx
-           IF ( usingSphericalPolarGrid ) THEN
-            sinlat = SIN(slcon_lat(i,j,k,bi,bj)*d2r)
-            coslat = COS(slcon_lat(i,j,k,bi,bj)*d2r)
-            Rbot = rSphere - slcon_constH
-            Rloc = rSphere + rC(k)
-            IF ( Rloc*coslat .GT. Rbot ) THEN ! Outside the TC, Hn = Rtop * sinlat
-             slcon_Hn(i,j,k,bi,bj) = rSphere*sinlat
-            ELSE ! Inside the TC
-             slcon_Hn(i,j,k,bi,bj) = rSphere*sinlat - Rbot*sinlat
+             Rbot = rSphere - slcon_constH
+             Rlocv = rSphere + rC(k)
+             Rlocw = rSphere + rF(k)
+
+             ylocv = Rlocv * coslatv
+             ylocw = Rlocw * coslatw
+
+             IF ( Rlocv*coslatv .GT. Rbot ) THEN ! Outside the TC, Hn = Rtop * sinlat
+              slcon_Hnv(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocv*ylocv)
+             ELSE ! Inside the TC
+              slcon_Hnv(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocv*ylocv)
+     &                               - SQRT(Rbot*Rbot-ylocv*ylocv)
+             END IF
+             IF ( Rlocw*coslatw .GT. Rbot ) THEN ! Outside the TC, Hn = Rtop * sinlat
+              slcon_Hnw(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocw*ylocw)
+             ELSE ! Inside the TC
+              slcon_Hnw(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocw*ylocw)
+     &                               - SQRT(Rbot*Rbot-ylocw*ylocw)
+             END IF
+
+            ELSE
+             slcon_Hnv(i,j,k,bi,bj)=slcon_constH/SIN(slcon_constlat*d2r)
+             slcon_Hnw(i,j,k,bi,bj)=slcon_constH/SIN(slcon_constlat*d2r)
             END IF
-           ELSE
-            slcon_Hn(i,j,k,bi,bj)=slcon_constH/SIN(slcon_constlat*d2r)
-           END IF
+           END DO
           END DO
          END DO
-        END DO
-      
-#ifdef SLANTWISE_DEBUG
-        DO k = 1, Nr
-         DO j = 1-OLy, sNy+OLy
-          DO i = 1-OLx, sNx+OLx
-           slcon_maskS(i,j,k,bi,bj) = 1
-           slcon_maskW(i,j,k,bi,bj) = 1
-           slcon_maskC(i,j,k,bi,bj) = 1
-           slcon_maskFk(i,j,k,bi,bj) = 1
-           slcon_sigmay(i,j,k,bi,bj) = 0
-           slcon_sigmaz(i,j,k,bi,bj) = 0
-          END DO
-         END DO
-        END DO
-#endif
 
+        END DO
        END DO
-      END DO
+      ENDIF
 
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN

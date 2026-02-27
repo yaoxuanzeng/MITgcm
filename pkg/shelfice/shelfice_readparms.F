@@ -69,7 +69,8 @@ CEOP
      &     mult_shifwflx, wshifwflx0, shifwflx_errfile,
 #endif
      &     SHELFICEremeshFrequency,
-     &     SHELFICEsplitThreshold, SHELFICEmergeThreshold
+     &     SHELFICEsplitThreshold, SHELFICEmergeThreshold,
+     &     SHELFICE_IceAbove
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
@@ -151,6 +152,7 @@ C these params. are default of Holland and Jenkins (1999)
       SHELFICE_tave_mnc = .FALSE.
       SHELFICE_dump_mnc = .FALSE.
 #endif
+      SHELFICE_IceAbove = 0. _d 0
 
 C Open and read the data.shelfice file
       WRITE(msgBuf,'(A)') ' SHELFICE_READPARMS: opening data.shelfice'
