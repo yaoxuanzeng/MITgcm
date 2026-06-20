@@ -92,14 +92,15 @@ C     Calculating Kvy and Kvz at southern boundary
           clat = COS(lats * d2r)
           slat = SIN(lats * d2r)
           bn = (clat*sigmaY(i,j,k)+slat*sigmaRs(i,j,k))
-     &          * gravitySign*gravity/rhoConst
+     &          * gravitySign*gravity*gravFacC(k)/rhoConst
           IF (bn*slat .GE. 0.D0) THEN
            slcon_Kvy(i,j,k,bi,bj) = 0. _d 0
            slcon_Kvz(i,j,k,bi,bj) = 0. _d 0
           ELSE
            Kn = MIN(slcon_cn * ABS(bn)
      &         * SQRT(ABS(bn)) * inv_f2
-     &         * (slcon_Hnv(i,j,k,bi,bj)*slcon_Hnv(i,j,k,bi,bj)),
+     &         * (slcon_Hnv(i,j,k,bi,bj)*slcon_Hnv(i,j,k,bi,bj))
+     &         * slcon_vweight(i,j,k,bi,bj),
      &          slcon_maxkappa)
            Kr = slcon_cr * Kn / slcon_cn
            slcon_Kvy(i,j,k,bi,bj) = (Kn*clat*clat + Kr*slat*slat)
@@ -132,14 +133,15 @@ C     Calculating kwy and kwz at upper boundary
           clat = COS(lats * d2r)
           slat = SIN(lats * d2r)
           bn = (clat*sigmaYr(i,j,k)+slat*sigmaR(i,j,k))
-     &          * gravitySign*gravity/rhoConst
+     &          * gravitySign*gravity*gravFacF(k)/rhoConst
           IF (bn*slat .GE. 0.D0) THEN
            slcon_Kwy(i,j,k,bi,bj) = 0. _d 0
            slcon_Kwz(i,j,k,bi,bj) = 0. _d 0
           ELSE
            Kn = MIN(slcon_cn * ABS(bn)
      &         * SQRT(ABS(bn)) * inv_f2
-     &         * (slcon_Hnw(i,j,k,bi,bj)*slcon_Hnw(i,j,k,bi,bj)),
+     &         * (slcon_Hnw(i,j,k,bi,bj)*slcon_Hnw(i,j,k,bi,bj))
+     &         * slcon_wweight(i,j,k,bi,bj),
      &          slcon_maxkappa)
            Kr = slcon_cr * Kn / slcon_cn
            slcon_Kwy(i,j,k,bi,bj) = (Kn-Kr)*slat*clat

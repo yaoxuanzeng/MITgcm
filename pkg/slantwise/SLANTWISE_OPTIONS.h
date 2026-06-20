@@ -26,7 +26,7 @@ C     (runtime flag still controls use; this switch compiles the code path).
 #undef  SLANTWISE_ALLOW_TIMEVAR_H
 
 C--   Debug: extra outputs under #ifdef SLANTWISE_DEBUG
-#undef  SLANTWISE_DEBUG
+#define  SLANTWISE_DEBUG
 
 C--   Allow temperature flux output
 #define SLANTWISE_TFLUX_DIAGNOSTICS

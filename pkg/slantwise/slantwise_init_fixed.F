@@ -37,7 +37,7 @@ C     latitude calculation
 
       d2r = 3.141592653589793D0 / 180.D0
 
-C--   Initialize fields, loop over tiles
+C--   Initialize H fields, loop over tiles
       IF (( slconHnvFile .NE. ' ') .AND. ( slconHnwFile .NE. ' ')) THEN
        _BARRIER
        CALL READ_REC_XYZ_RS( slconHnvFile, slcon_Hnv,
@@ -66,13 +66,15 @@ C--    Set H: column depth for spherical, const for cartisian
              ylocw = Rlocw * coslatw
 
              IF ( Rlocv*coslatv .GT. Rbot ) THEN ! Outside the TC, Hn = Rtop * sinlat
-              slcon_Hnv(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocv*ylocv)
+C              slcon_Hnv(i,j,k,bi,bj)=SQRT(rSphere*rSphere-ylocv*ylocv)
+              slcon_Hnv(i,j,k,bi,bj)=SQRT(rSphere*rSphere-Rbot*Rbot)
              ELSE ! Inside the TC
-              slcon_Hnv(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocv*ylocv)
-     &                               - SQRT(Rbot*Rbot-ylocv*ylocv)
+              slcon_Hnv(i,j,k,bi,bj)=SQRT(rSphere*rSphere-ylocv*ylocv)
+     &                              -SQRT(Rbot*Rbot-ylocv*ylocv)
              END IF
              IF ( Rlocw*coslatw .GT. Rbot ) THEN ! Outside the TC, Hn = Rtop * sinlat
-              slcon_Hnw(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocw*ylocw)
+C              slcon_Hnw(i,j,k,bi,bj)=SQRT(rSphere*rSphere-ylocw*ylocw)
+              slcon_Hnw(i,j,k,bi,bj)=SQRT(rSphere*rSphere-Rbot*Rbot)
              ELSE ! Inside the TC
               slcon_Hnw(i,j,k,bi,bj) = SQRT(rSphere*rSphere-ylocw*ylocw)
      &                               - SQRT(Rbot*Rbot-ylocw*ylocw)
@@ -82,6 +84,29 @@ C--    Set H: column depth for spherical, const for cartisian
              slcon_Hnv(i,j,k,bi,bj)=slcon_constH/SIN(slcon_constlat*d2r)
              slcon_Hnw(i,j,k,bi,bj)=slcon_constH/SIN(slcon_constlat*d2r)
             END IF
+           END DO
+          END DO
+         END DO
+
+        END DO
+       END DO
+      ENDIF
+
+C--   Initialize H fields, loop over tiles
+      IF ((slconvweightFile.NE.' ').AND.(slconwweightFile.NE.' ')) THEN
+       _BARRIER
+       CALL READ_REC_XYZ_RS( slconvweightFile, slcon_vweight,
+     &                      1, 0, myThid )
+       CALL READ_REC_XYZ_RS( slconwweightFile, slcon_wweight,
+     &                      1, 0, myThid )
+      ELSE
+       DO bj = myByLo(myThid), myByHi(myThid)
+        DO bi = myBxLo(myThid), myBxHi(myThid)
+         DO k = 1, Nr
+          DO j = 1-OLy, sNy+OLy
+           DO i = 1-OLx, sNx+OLx
+            slcon_vweight(i,j,k,bi,bj) = 1.D0
+            slcon_wweight(i,j,k,bi,bj) = 1.D0
            END DO
           END DO
          END DO

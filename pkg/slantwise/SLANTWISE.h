@@ -14,15 +14,13 @@ CEOP
 
 C--   Scalar parameters
       COMMON /SLANTWISE_PARAMS/
-     &   	  slcon_on, slcon_useconstH,
+     &   	  slcon_useconstH,
      &		  slcon_constlat,slcon_constH,
      &		  slcon_cn, slcon_cr, slcon_maxkappa
 
 C--   Logical-type parameters
-C     slcon_on			:: apply slantwise convection package
 C     slcon_useconstH		:: use constant H (True) or stratification-defined H (False)
 
-      LOGICAL slcon_on
       LOGICAL slcon_useconstH
 
 C--   Other parameters
@@ -40,10 +38,13 @@ C     slcon_maxkappa		:: maximum kappa for stability
 
       CHARACTER*(MAX_LEN_FNAM) slconHnvFile
       CHARACTER*(MAX_LEN_FNAM) slconHnwFile
+      CHARACTER*(MAX_LEN_FNAM) slconvweightFile
+      CHARACTER*(MAX_LEN_FNAM) slconwweightFile
 
 C--   Input fields
       COMMON /SLANTWISE_INPUT_FIELDS/
-     &				slconHnvFile, slconHnwFile
+     &				slconHnvFile, slconHnwFile,
+     &				slconvweightFile,slconwweightFile
 
 C--   Runtime fields
       COMMON /SLANTWISE_FIELDS/
@@ -51,11 +52,13 @@ C--   Runtime fields
      &				slcon_Kvy, slcon_Kvz,
      &				slcon_Kwy, slcon_Kwz,
      &				slcon_Ty, slcon_Tz,
-     &				slcon_Sy, slcon_Sz
+     &				slcon_Sy, slcon_Sz,
+     &				slcon_vweight, slcon_wweight
 
 C     slcon_Hnv/w		:: Hn field at v/w points
 C     slcon_Kvy/Kvz/Kwy/Kwz	:: Diffusivity tensor entries
 C     slcon_Ty/Tz/Sy/Sz		:: Temperature/Salinity flux at y/z directions
+C     slcon_v/wweight		:: Vertical weight
 
       _RL slcon_Hnv(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
       _RL slcon_Hnw(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
@@ -67,6 +70,9 @@ C     slcon_Ty/Tz/Sy/Sz		:: Temperature/Salinity flux at y/z directions
       _RL slcon_Tz(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
       _RL slcon_Sy(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
       _RL slcon_Sz(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
+      _RL slcon_vweight(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
+      _RL slcon_wweight(1-OLx:sNx+OLx, 1-OLy:sNy+OLy, 1:Nr, nSx, nSy)
+
 
 C--   Debug list
       COMMON /SLANTWISE_DEBUG/
